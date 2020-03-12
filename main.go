@@ -3,6 +3,7 @@ package main
 import (
 	"com.fs/event-service/config"
 	"com.fs/event-service/router"
+	"com.fs/event-service/service"
 	"context"
 	"github.com/gin-gonic/gin"
 	DEATH "gopkg.in/vrecan/death.v3"
@@ -16,6 +17,9 @@ import (
 // @version 0.1
 // @BasePath /
 func main() {
+	service.Init()
+	defer service.Destroy()
+
 	r := gin.Default()
 
 	router.InitRouter(r)
