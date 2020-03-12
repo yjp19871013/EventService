@@ -1,0 +1,12 @@
+{
+  "version": "0.1",
+  "server": {
+    "port": ":10300"
+  },
+  "database": {
+    "username": "root",
+    "password": "yjp123456",
+    "address": "localhost:3306",
+    "schema": "event"
+  }
+}
