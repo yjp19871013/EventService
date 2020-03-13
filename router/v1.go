@@ -13,15 +13,17 @@ var (
 	}
 
 	v1DeleteRouter = map[string]gin.HandlerFunc{
-		"/delete/producer-plugin/:pluginName": api.DeleteProducerPlugin,
-		"/delete/producer/:producerName":      api.DeleteProducer,
-		"/delete/consumer/:consumerName":      api.DeleteConsumer,
+		"/delete/producer-plugin/:pluginName":                        api.DeleteProducerPlugin,
+		"/delete/producer-plugin/:pluginName/producer/:producerName": api.DeleteProducer,
+		"/delete/consumer/:consumerName":                             api.DeleteConsumer,
 	}
 
 	v1PutRouter = map[string]gin.HandlerFunc{}
 
 	v1GetRouter = map[string]gin.HandlerFunc{
-		"/producer-plugins": api.GetProducerPlugins,
+		"/producer-plugins":                       api.GetProducerPlugins,
+		"/producer-plugins/:pluginName/producers": api.GetPluginProducers,
+		"/producers":                              api.GetProducers,
 	}
 )
 

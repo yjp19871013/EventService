@@ -10,6 +10,8 @@ import (
 type ProducerPlugin struct {
 	ID   uint64 `gorm:"primary_key;"`
 	Name string `gorm:"not null;unique;type:varchar(256);"`
+
+	Producers []Producer
 }
 
 func (p *ProducerPlugin) Create() error {
@@ -52,9 +54,9 @@ func (p *ProducerPlugin) GetByName() error {
 	return nil
 }
 
-func (p ProducerPlugin) DeleteByIDAndName() error {
+func (p *ProducerPlugin) DeleteByIDAndName() error {
 	if p.ID == 0 || utils.IsStringEmpty(p.Name) {
-		utils.PrintErr("ProducerPlugin.DeleteByName", "没有传递必要的参数")
+		utils.PrintErr("ProducerPlugin.DeleteByIDAndName", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
@@ -65,6 +67,37 @@ func (p ProducerPlugin) DeleteByIDAndName() error {
 	}
 
 	return nil
+}
+
+func (p *ProducerPlugin) DeleteAllPluginsProducers() error {
+	if p.ID == 0 {
+		utils.PrintErr("ProducerPlugin.DeleteAllPluginsProducers", "没有传递必要的参数")
+		return errors.New("没有传递必要的参数")
+	}
+
+	err := getInstance().Model(p).Association("Producers").Clear().Error
+	if err != nil {
+		utils.PrintCallErr("ProducerPlugin.DeleteAllPluginsProducers", "find producers", err)
+		return err
+	}
+
+	return nil
+}
+
+func (p *ProducerPlugin) GetAllPluginsProducers() ([]Producer, error) {
+	if p.ID == 0 {
+		utils.PrintErr("ProducerPlugin.GetAllPluginsProducers", "没有传递必要的参数")
+		return nil, errors.New("没有传递必要的参数")
+	}
+
+	producers := make([]Producer, 0)
+	err := getInstance().Model(p).Association("Producers").Find(&producers).Error
+	if err != nil {
+		utils.PrintCallErr("ProducerPlugin.GetAllPluginsProducers", "find producers", err)
+		return nil, err
+	}
+
+	return producers, nil
 }
 
 func GetAllProducerPlugins() ([]ProducerPlugin, error) {
