@@ -27,7 +27,7 @@ func Open() {
 
 	gormDb = openDb
 
-	autoMigrate(&Consumer{}, &Producer{})
+	autoMigrate(&Consumer{}, &ProducerPlugin{})
 }
 
 // Close 关闭数据库

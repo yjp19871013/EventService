@@ -1,13 +1,7 @@
 package dto
 
-type RegisterConsumerRequest struct {
+type AddConsumerRequest struct {
 }
 
-type RegisterConsumerResponse struct {
-}
-
-type UnregisterConsumerRequest struct {
-}
-
-type UnregisterConsumerResponse struct {
+type AddConsumerResponse struct {
 }

@@ -17,10 +17,15 @@ type databaseConfig struct {
 	Schema   string `json:"schema"`
 }
 
+type pluginConfig struct {
+	Dir string `json:"dir"`
+}
+
 type eventServiceConfig struct {
 	Version        string         `json:"version"`
 	ServerConfig   serverConfig   `json:"server"`
 	DatabaseConfig databaseConfig `json:"database"`
+	PluginConfig   pluginConfig   `json:"plugin"`
 }
 
 var conf = &eventServiceConfig{}

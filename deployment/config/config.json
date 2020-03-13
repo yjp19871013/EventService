@@ -8,5 +8,8 @@
     "password": "yjp123456",
     "address": "localhost:3306",
     "schema": "event"
+  },
+  "plugins": {
+    "dir": "/home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/producers"
   }
 }

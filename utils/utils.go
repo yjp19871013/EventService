@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -15,4 +16,17 @@ func PrintErr(functionName string, msg ...interface{}) {
 
 func IsStringEmpty(str string) bool {
 	return strings.Trim(str, " ") == ""
+}
+
+func PathExists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	return false
 }
