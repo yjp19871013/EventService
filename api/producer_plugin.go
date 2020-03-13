@@ -12,7 +12,7 @@ import (
 // AddProducerPlugin godoc
 // @Summary 添加事件生产者插件
 // @Description 添加事件生产者插件
-// @Tags 事件生产者
+// @Tags 事件生产者插件
 // @Accept  json
 // @Produce json
 // @Param AddProducerPluginRequest body dto.AddProducerPluginRequest true "添加事件生产者插件信息"
@@ -46,7 +46,7 @@ func AddProducerPlugin(c *gin.Context) {
 // DeleteProducerPlugin godoc
 // @Summary 删除事件生产者插件
 // @Description 删除事件生产者插件
-// @Tags 事件生产者
+// @Tags 事件生产者插件
 // @Accept  json
 // @Produce json
 // @Param pluginName path string true "插件名称"
@@ -81,7 +81,7 @@ func DeleteProducerPlugin(c *gin.Context) {
 // GetProducerPlugins godoc
 // @Summary 获取所有事件生产者插件
 // @Description 获取所有事件生产者插件
-// @Tags 事件生产者
+// @Tags 事件生产者插件
 // @Accept  json
 // @Produce json
 // @Success 200 {object} dto.GetProducerPluginsResponse
