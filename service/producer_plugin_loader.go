@@ -14,7 +14,7 @@ const (
 )
 
 var pluginMapLock sync.Mutex
-var pluginMap = map[string]plugin.Symbol{}
+var pluginMap = map[string]*plugin.Plugin{}
 
 func LoadProducerPlugin(pluginName string) error {
 	if utils.IsStringEmpty(pluginName) {
@@ -45,7 +45,7 @@ func UnloadProducerPlugin(pluginName string) {
 	deleteProducerPlugin(pluginName)
 }
 
-func addProducerPlugin(pluginName string, p plugin.Symbol) {
+func addProducerPlugin(pluginName string, p *plugin.Plugin) {
 	pluginMapLock.Lock()
 	defer pluginMapLock.Unlock()
 
@@ -57,4 +57,11 @@ func deleteProducerPlugin(pluginName string) {
 	defer pluginMapLock.Unlock()
 
 	pluginMap[pluginName] = nil
+}
+
+func getProducerPlugin(pluginName string) *plugin.Plugin {
+	pluginMapLock.Lock()
+	defer pluginMapLock.Unlock()
+
+	return pluginMap[pluginName]
 }

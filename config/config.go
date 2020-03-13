@@ -25,7 +25,7 @@ type eventServiceConfig struct {
 	Version        string         `json:"version"`
 	ServerConfig   serverConfig   `json:"server"`
 	DatabaseConfig databaseConfig `json:"database"`
-	PluginConfig   pluginConfig   `json:"plugin"`
+	PluginConfig   pluginConfig   `json:"plugins"`
 }
 
 var conf = &eventServiceConfig{}

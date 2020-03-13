@@ -66,3 +66,14 @@ func (p ProducerPlugin) DeleteByIDAndName() error {
 
 	return nil
 }
+
+func GetAllProducerPlugins() ([]ProducerPlugin, error) {
+	plugins := make([]ProducerPlugin, 0)
+	err := getInstance().Find(&plugins).Error
+	if err != nil {
+		utils.PrintCallErr("GetAllProducerPlugins", "find producer plugins", err)
+		return nil, err
+	}
+
+	return plugins, nil
+}

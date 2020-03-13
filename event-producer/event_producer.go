@@ -1,7 +1,7 @@
 package event_producer
 
-type EventProducerFactory interface {
-	NewInstance(conf string)
+type EventProducerPlugin interface {
+	NewInstance(conf string) EventProducer
 	DestroyInstance(producer EventProducer)
 }
 

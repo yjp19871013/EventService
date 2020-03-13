@@ -2,6 +2,7 @@ package service
 
 import (
 	"com.fs/event-service/db"
+	"com.fs/event-service/service/model"
 	"com.fs/event-service/utils"
 	"errors"
 )
@@ -42,4 +43,13 @@ func DeleteProducerPlugin(pluginName string) error {
 	}
 
 	return nil
+}
+
+func GetProducerPlugins() ([]model.ProducerPluginInfo, error) {
+	plugins, err := db.GetAllProducerPlugins()
+	if err != nil {
+		return nil, err
+	}
+
+	return model.TransferProducerPluginToProducerPluginInfoBatch(plugins), nil
 }
