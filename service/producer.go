@@ -77,10 +77,38 @@ func DeleteAllProducers(pluginName string) error {
 		return err
 	}
 
-	err = p.DeleteAllPluginProducers()
+	producers, err := p.GetAllPluginProducers()
 	if err != nil {
-		utils.PrintCallErr("DeleteAllProducers", "p.DeleteAllPluginProducers", err)
+		utils.PrintCallErr("DeleteAllProducers", "p.GetAllPluginProducers", err)
 		return err
+	}
+
+	for _, producer := range producers {
+		consumers, err := producer.GetAllProducerConsumers()
+		if err != nil {
+			utils.PrintCallErr("DeleteAllProducers", "producer.GetAllProducerConsumers", err)
+			return err
+		}
+
+		for _, consumer := range consumers {
+			err := consumer.DeleteByIDAndName()
+			if err != nil {
+				utils.PrintCallErr("DeleteAllProducers", "producer.DeleteByIDAndName", err)
+				return err
+			}
+		}
+
+		err = producer.DeleteByIDAndName()
+		if err != nil {
+			utils.PrintCallErr("DeleteAllProducers", "p.DeleteByIDAndName", err)
+			return err
+		}
+
+		err = DestroyProducer(pluginName, producer.Name)
+		if err != nil {
+			utils.PrintCallErr("DeleteAllProducers", "DestroyProducer", err)
+			return err
+		}
 	}
 
 	return nil

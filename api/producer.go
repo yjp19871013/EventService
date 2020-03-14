@@ -68,7 +68,13 @@ func DeleteProducer(c *gin.Context) {
 		return
 	}
 
-	err := service.DeleteProducer(pluginName, producerName)
+	err := service.DeleteAllConsumers(producerName)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	err = service.DeleteProducer(pluginName, producerName)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return

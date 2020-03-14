@@ -77,10 +77,18 @@ func DeleteAllConsumers(producerName string) error {
 		return err
 	}
 
-	err = producer.DeleteAllProducerConsumers()
+	consumers, err := producer.GetAllProducerConsumers()
 	if err != nil {
-		utils.PrintCallErr("DeleteAllConsumers", "producer.DeleteAllProducerConsumers", err)
+		utils.PrintCallErr("DeleteAllConsumers", "producer.GetAllProducerConsumers", err)
 		return err
+	}
+
+	for _, consumer := range consumers {
+		err := consumer.DeleteByIDAndName()
+		if err != nil {
+			utils.PrintCallErr("DeleteAllConsumers", "consumer.DeleteByIDAndName", err)
+			return err
+		}
 	}
 
 	return nil

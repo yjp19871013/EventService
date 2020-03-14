@@ -79,4 +79,5 @@ func deleteProducer(producerName string) {
 	defer producerMapLock.Unlock()
 
 	producerMap[producerName] = nil
+	delete(producerMap, producerName)
 }

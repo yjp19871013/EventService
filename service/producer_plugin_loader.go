@@ -70,6 +70,7 @@ func deleteProducerPlugin(pluginName string) {
 	defer pluginMapLock.Unlock()
 
 	pluginMap[pluginName] = nil
+	delete(pluginMap, pluginName)
 }
 
 func getProducerPlugin(pluginName string) event_producer.EventProducerPlugin {

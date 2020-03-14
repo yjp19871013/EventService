@@ -73,21 +73,6 @@ func (producer *Producer) DeleteByIDAndName() error {
 	return nil
 }
 
-func (producer *Producer) DeleteAllProducerConsumers() error {
-	if producer.ID == 0 {
-		utils.PrintErr("ProducerPlugin.DeleteAllProducerConsumers", "没有传递必要的参数")
-		return errors.New("没有传递必要的参数")
-	}
-
-	err := getInstance().Model(producer).Association("Consumers").Clear().Error
-	if err != nil {
-		utils.PrintCallErr("ProducerPlugin.DeleteAllProducerConsumers", "Clear consumers", err)
-		return err
-	}
-
-	return nil
-}
-
 func (producer *Producer) GetAllProducerConsumers() ([]Consumer, error) {
 	if producer.ID == 0 {
 		utils.PrintErr("ProducerPlugin.GetAllProducerConsumers", "没有传递必要的参数")
