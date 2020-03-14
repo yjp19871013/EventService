@@ -2,6 +2,7 @@ package service
 
 import (
 	"com.fs/event-service/config"
+	"com.fs/event-service/event-producer"
 	"com.fs/event-service/utils"
 	"errors"
 	"path/filepath"
@@ -14,7 +15,7 @@ const (
 )
 
 var pluginMapLock sync.Mutex
-var pluginMap = map[string]*plugin.Plugin{}
+var pluginMap = map[string]event_producer.EventProducerPlugin{}
 
 func LoadProducerPlugin(pluginName string) error {
 	if utils.IsStringEmpty(pluginName) {
@@ -36,7 +37,19 @@ func LoadProducerPlugin(pluginName string) error {
 		return err
 	}
 
-	addProducerPlugin(pluginName, p)
+	s, err := p.Lookup("Plugin")
+	if err != nil {
+		utils.PrintCallErr("NewProducer", "p.Lookup", err)
+		return err
+	}
+
+	producerPlugin, ok := s.(event_producer.EventProducerPlugin)
+	if !ok {
+		utils.PrintErr("NewProducer", "类型转换失败")
+		return errors.New("类型转换失败")
+	}
+
+	addProducerPlugin(pluginName, producerPlugin)
 
 	return nil
 }
@@ -45,7 +58,7 @@ func UnloadProducerPlugin(pluginName string) {
 	deleteProducerPlugin(pluginName)
 }
 
-func addProducerPlugin(pluginName string, p *plugin.Plugin) {
+func addProducerPlugin(pluginName string, p event_producer.EventProducerPlugin) {
 	pluginMapLock.Lock()
 	defer pluginMapLock.Unlock()
 
@@ -59,7 +72,7 @@ func deleteProducerPlugin(pluginName string) {
 	pluginMap[pluginName] = nil
 }
 
-func getProducerPlugin(pluginName string) *plugin.Plugin {
+func getProducerPlugin(pluginName string) event_producer.EventProducerPlugin {
 	pluginMapLock.Lock()
 	defer pluginMapLock.Unlock()
 

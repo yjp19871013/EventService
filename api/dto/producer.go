@@ -5,11 +5,12 @@ import "com.fs/event-service/service/model"
 type AddProducerRequest struct {
 	PluginName   string `json:"pluginName" binding:"required"`
 	ProducerName string `json:"producerName" binding:"required"`
+	Config       string `json:"config"`
 }
 
 type GetProducersResponse struct {
 	MsgResponse
-	Producers []ProducerInfo
+	Producers []ProducerInfoWithID
 }
 
 type ProducerInfo struct {

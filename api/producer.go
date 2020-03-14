@@ -6,6 +6,7 @@ import (
 	"com.fs/event-service/utils"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
+	"net/http"
 )
 
 // AddProducer godoc
@@ -27,7 +28,7 @@ func AddProducer(c *gin.Context) {
 		return
 	}
 
-	err = service.NewProducer(request.PluginName, request.ProducerName)
+	err = service.NewProducer(request.PluginName, request.ProducerName, request.Config)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return
@@ -94,7 +95,28 @@ func DeleteProducer(c *gin.Context) {
 // @Failure 500 {object} dto.GetProducersResponse
 // @Router /event/api/v1/producer-plugins/{pluginName}/producers [get]
 func GetPluginProducers(c *gin.Context) {
+	pluginName := c.Param("pluginName")
+	if utils.IsStringEmpty(pluginName) {
+		c.JSON(http.StatusBadRequest, dto.GetProducersResponse{
+			MsgResponse: dto.FormFailureMsgResponse("获取某个插件下的所有事件生产者失败", errors.New("没有传递pluginName")),
+			Producers:   dto.FormProducerInfoWithIDBatch(nil),
+		})
+		return
+	}
 
+	producers, err := service.GetPluginProducers(pluginName)
+	if err != nil {
+		c.JSON(http.StatusOK, dto.GetProducersResponse{
+			MsgResponse: dto.FormFailureMsgResponse("获取某个插件下的所有事件生产者失败", err),
+			Producers:   dto.FormProducerInfoWithIDBatch(nil),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.GetProducersResponse{
+		MsgResponse: dto.FormSuccessMsgResponse("获取某个插件下的所有事件生产者成功"),
+		Producers:   dto.FormProducerInfoWithIDBatch(producers),
+	})
 }
 
 // GetProducers godoc
@@ -108,5 +130,17 @@ func GetPluginProducers(c *gin.Context) {
 // @Failure 500 {object} dto.GetProducersResponse
 // @Router /event/api/v1/producers [get]
 func GetProducers(c *gin.Context) {
+	producers, err := service.GetAllProducers()
+	if err != nil {
+		c.JSON(http.StatusOK, dto.GetProducersResponse{
+			MsgResponse: dto.FormFailureMsgResponse("获取所有事件生产者失败", err),
+			Producers:   dto.FormProducerInfoWithIDBatch(nil),
+		})
+		return
+	}
 
+	c.JSON(http.StatusOK, dto.GetProducersResponse{
+		MsgResponse: dto.FormSuccessMsgResponse("获取所有事件生产者成功"),
+		Producers:   dto.FormProducerInfoWithIDBatch(producers),
+	})
 }

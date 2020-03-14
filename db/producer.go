@@ -24,7 +24,7 @@ func (producer *Producer) Create() error {
 	if err != nil {
 		if strings.Contains(err.Error(), "Error 1062") {
 			utils.PrintErr("Producer.Create", "生产者已存在")
-			return errors.New("生产者插件已存在")
+			return errors.New("生产者已存在")
 		}
 
 		utils.PrintCallErr("Producer.Create", "创建生产者", err)

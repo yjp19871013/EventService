@@ -2,6 +2,7 @@ package main
 
 import (
 	"com.fs/event-service/event-producer"
+	"com.fs/event-service/event-producer/http-push-producer/producer"
 	"fmt"
 )
 
@@ -12,12 +13,12 @@ func init() {
 type HttpPushPlugin struct {
 }
 
-var Plugin HttpPushPlugin
+var Plugin = HttpPushPlugin{}
 
 func (p *HttpPushPlugin) NewInstance(conf string) event_producer.EventProducer {
 	fmt.Println("httpPushPlugin NewInstance")
 
-	return nil
+	return &producer.Producer{}
 }
 
 func (p *HttpPushPlugin) DestroyInstance(producer event_producer.EventProducer) {
