@@ -11,7 +11,7 @@ var (
 	}
 
 	v1DeleteRouter = map[string]gin.HandlerFunc{
-		"/delete/consumer/:consumerName": api.DeleteConsumer,
+		"/delete/producer/:producerName/consumer/:consumerName": api.DeleteConsumer,
 	}
 
 	v1PutRouter = map[string]gin.HandlerFunc{}
@@ -20,6 +20,8 @@ var (
 		"/producer-plugins":                       api.GetProducerPlugins,
 		"/producer-plugins/:pluginName/producers": api.GetPluginProducers,
 		"/producers":                              api.GetProducers,
+		"/producer/:producerName/consumers":       api.GetProducerConsumers,
+		"/consumers":                              api.GetConsumers,
 	}
 )
 

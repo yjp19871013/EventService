@@ -66,7 +66,7 @@ func DeleteProducer(pluginName string, producerName string) error {
 
 func DeleteAllProducers(pluginName string) error {
 	if utils.IsStringEmpty(pluginName) {
-		utils.PrintErr("AddProducer", "没有传递必要的参数")
+		utils.PrintErr("DeleteAllProducers", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
@@ -77,9 +77,9 @@ func DeleteAllProducers(pluginName string) error {
 		return err
 	}
 
-	err = p.DeleteAllPluginsProducers()
+	err = p.DeleteAllPluginProducers()
 	if err != nil {
-		utils.PrintCallErr("DeleteAllProducers", "p.DeleteAllPluginsProducers", err)
+		utils.PrintCallErr("DeleteAllProducers", "p.DeleteAllPluginProducers", err)
 		return err
 	}
 
@@ -95,6 +95,7 @@ func GetPluginProducers(pluginName string) ([]model.ProducerInfo, error) {
 	p := &db.ProducerPlugin{Name: pluginName}
 	err := p.GetByName()
 	if err != nil {
+		utils.PrintCallErr("GetPluginProducers", "p.GetByName", err)
 		return nil, err
 	}
 
@@ -110,6 +111,7 @@ func GetPluginProducers(pluginName string) ([]model.ProducerInfo, error) {
 func GetAllProducers() ([]model.ProducerInfo, error) {
 	producers, err := db.GetAllProducers()
 	if err != nil {
+		utils.PrintCallErr("GetAllProducers", "db.GetAllProducers", err)
 		return nil, err
 	}
 

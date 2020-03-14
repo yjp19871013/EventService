@@ -69,15 +69,15 @@ func (p *ProducerPlugin) DeleteByIDAndName() error {
 	return nil
 }
 
-func (p *ProducerPlugin) DeleteAllPluginsProducers() error {
+func (p *ProducerPlugin) DeleteAllPluginProducers() error {
 	if p.ID == 0 {
-		utils.PrintErr("ProducerPlugin.DeleteAllPluginsProducers", "没有传递必要的参数")
+		utils.PrintErr("ProducerPlugin.DeleteAllPluginProducers", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
 	err := getInstance().Model(p).Association("Producers").Clear().Error
 	if err != nil {
-		utils.PrintCallErr("ProducerPlugin.DeleteAllPluginsProducers", "find producers", err)
+		utils.PrintCallErr("ProducerPlugin.DeleteAllPluginProducers", "Clear producers", err)
 		return err
 	}
 

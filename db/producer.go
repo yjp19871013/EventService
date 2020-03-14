@@ -10,9 +10,10 @@ import (
 type Producer struct {
 	ID     uint64 `gorm:"primary_key;"`
 	Name   string `gorm:"not null;unique;type:varchar(256);"`
-	Config string `gorm:"not null;size(2048)"`
+	Config string `gorm:"not null;type:varchar(10240)"`
 
 	ProducerPluginID uint64
+	Consumers        []Consumer
 }
 
 func (producer *Producer) Create() error {
@@ -36,8 +37,8 @@ func (producer *Producer) Create() error {
 }
 
 func (producer *Producer) GetByNameAndProducerPluginID() error {
-	if utils.IsStringEmpty(producer.Name) {
-		utils.PrintErr("Producer.GetByName", "没有传递必要的参数")
+	if utils.IsStringEmpty(producer.Name) || producer.ProducerPluginID == 0 {
+		utils.PrintErr("Producer.GetByNameAndProducerPluginID", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
@@ -46,11 +47,11 @@ func (producer *Producer) GetByNameAndProducerPluginID() error {
 		First(producer).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			utils.PrintErr("Producer.GetByName", "生产者不存在")
+			utils.PrintErr("Producer.GetByNameAndProducerPluginID", "生产者不存在")
 			return errors.New("生产者不存在")
 		}
 
-		utils.PrintCallErr("Producer.GetByName", "Find producer", err)
+		utils.PrintCallErr("Producer.GetByNameAndProducerPluginID", "Find producer", err)
 		return err
 	}
 
@@ -66,6 +67,57 @@ func (producer *Producer) DeleteByIDAndName() error {
 	err := getInstance().Where("id = ? AND name = ?", producer.ID, producer.Name).Delete(producer).Error
 	if err != nil {
 		utils.PrintCallErr("DeleteByIDAndName", "Delete producer", err)
+		return err
+	}
+
+	return nil
+}
+
+func (producer *Producer) DeleteAllProducerConsumers() error {
+	if producer.ID == 0 {
+		utils.PrintErr("ProducerPlugin.DeleteAllProducerConsumers", "没有传递必要的参数")
+		return errors.New("没有传递必要的参数")
+	}
+
+	err := getInstance().Model(producer).Association("Consumers").Clear().Error
+	if err != nil {
+		utils.PrintCallErr("ProducerPlugin.DeleteAllProducerConsumers", "Clear consumers", err)
+		return err
+	}
+
+	return nil
+}
+
+func (producer *Producer) GetAllProducerConsumers() ([]Consumer, error) {
+	if producer.ID == 0 {
+		utils.PrintErr("ProducerPlugin.GetAllProducerConsumers", "没有传递必要的参数")
+		return nil, errors.New("没有传递必要的参数")
+	}
+
+	consumers := make([]Consumer, 0)
+	err := getInstance().Model(producer).Association("Consumers").Find(&consumers).Error
+	if err != nil {
+		utils.PrintCallErr("ProducerPlugin.GetAllProducerConsumers", "find consumers", err)
+		return nil, err
+	}
+
+	return consumers, nil
+}
+
+func (producer *Producer) GetByName() error {
+	if utils.IsStringEmpty(producer.Name) {
+		utils.PrintErr("Producer.GetByName", "没有传递必要的参数")
+		return errors.New("没有传递必要的参数")
+	}
+
+	err := getInstance().Where("name = ?", producer.Name).First(producer).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			utils.PrintErr("Producer.GetByName", "生产者不存在")
+			return errors.New("生产者不存在")
+		}
+
+		utils.PrintCallErr("Producer.GetByName", "Find producer", err)
 		return err
 	}
 
