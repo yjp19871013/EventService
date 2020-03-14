@@ -42,6 +42,8 @@ func DeleteProducerPlugin(pluginName string) error {
 		return err
 	}
 
+	UnloadProducerPlugin(pluginName)
+
 	return nil
 }
 

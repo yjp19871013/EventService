@@ -80,12 +80,6 @@ func DeleteProducer(c *gin.Context) {
 		return
 	}
 
-	err = service.DestroyProducer(pluginName, producerName)
-	if err != nil {
-		dto.Response200FailJson(c, err)
-		return
-	}
-
 	dto.Response200Json(c, "删除事件生产者成功")
 }
 

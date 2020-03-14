@@ -61,6 +61,12 @@ func DeleteProducer(pluginName string, producerName string) error {
 		return err
 	}
 
+	err = DestroyProducer(pluginName, producerName)
+	if err != nil {
+		utils.PrintCallErr("DeleteProducer", "producer.DeleteByIDAndName", err)
+		return err
+	}
+
 	return nil
 }
 

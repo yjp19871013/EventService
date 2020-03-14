@@ -73,8 +73,6 @@ func DeleteProducerPlugin(c *gin.Context) {
 		return
 	}
 
-	service.UnloadProducerPlugin(pluginName)
-
 	dto.Response200Json(c, "删除生产者插件成功")
 }
 
