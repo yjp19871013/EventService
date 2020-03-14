@@ -7,7 +7,7 @@ import (
 	"errors"
 )
 
-func AddProducer(pluginName string, producerName string) error {
+func AddProducer(pluginName string, producerName string, conf string) error {
 	if utils.IsStringEmpty(pluginName) || utils.IsStringEmpty(producerName) {
 		utils.PrintErr("AddProducer", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
@@ -22,6 +22,7 @@ func AddProducer(pluginName string, producerName string) error {
 
 	producer := &db.Producer{
 		Name:             producerName,
+		Config:           conf,
 		ProducerPluginID: p.ID,
 	}
 
@@ -97,9 +98,9 @@ func GetPluginProducers(pluginName string) ([]model.ProducerInfo, error) {
 		return nil, err
 	}
 
-	producers, err := p.GetAllPluginsProducers()
+	producers, err := p.GetAllPluginProducers()
 	if err != nil {
-		utils.PrintCallErr("GetPluginProducers", "p.GetAllPluginsProducers", err)
+		utils.PrintCallErr("GetPluginProducers", "p.GetAllPluginProducers", err)
 		return nil, err
 	}
 

@@ -84,16 +84,16 @@ func (p *ProducerPlugin) DeleteAllPluginsProducers() error {
 	return nil
 }
 
-func (p *ProducerPlugin) GetAllPluginsProducers() ([]Producer, error) {
+func (p *ProducerPlugin) GetAllPluginProducers() ([]Producer, error) {
 	if p.ID == 0 {
-		utils.PrintErr("ProducerPlugin.GetAllPluginsProducers", "没有传递必要的参数")
+		utils.PrintErr("ProducerPlugin.GetAllPluginProducers", "没有传递必要的参数")
 		return nil, errors.New("没有传递必要的参数")
 	}
 
 	producers := make([]Producer, 0)
 	err := getInstance().Model(p).Association("Producers").Find(&producers).Error
 	if err != nil {
-		utils.PrintCallErr("ProducerPlugin.GetAllPluginsProducers", "find producers", err)
+		utils.PrintCallErr("ProducerPlugin.GetAllPluginProducers", "find producers", err)
 		return nil, err
 	}
 

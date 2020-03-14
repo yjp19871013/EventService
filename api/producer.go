@@ -19,7 +19,7 @@ import (
 // @Success 200 {object} dto.MsgResponse
 // @Failure 400 {object} dto.MsgResponse
 // @Failure 500 {object} dto.MsgResponse
-// @Router /event/api/v1/add/producer [post]
+// @Router /event/api/v2/add/producer [post]
 func AddProducer(c *gin.Context) {
 	request := &dto.AddProducerRequest{}
 	err := c.ShouldBindJSON(request)
@@ -34,7 +34,7 @@ func AddProducer(c *gin.Context) {
 		return
 	}
 
-	err = service.AddProducer(request.PluginName, request.ProducerName)
+	err = service.AddProducer(request.PluginName, request.ProducerName, request.Config)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return
@@ -54,7 +54,7 @@ func AddProducer(c *gin.Context) {
 // @Success 200 {object} dto.MsgResponse
 // @Failure 400 {object} dto.MsgResponse
 // @Failure 500 {object} dto.MsgResponse
-// @Router /event/api/v1/delete/producer-plugin/{pluginName}/producer/{producerName} [delete]
+// @Router /event/api/v2/delete/producer-plugin/{pluginName}/producer/{producerName} [delete]
 func DeleteProducer(c *gin.Context) {
 	pluginName := c.Param("pluginName")
 	if utils.IsStringEmpty(pluginName) {

@@ -4,7 +4,6 @@ import (
 	"com.fs/event-service/event-producer"
 	"com.fs/event-service/utils"
 	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -32,8 +31,6 @@ func NewProducer(pluginName string, producerName string, conf string) error {
 	producer = p.NewInstance(conf)
 
 	addProducer(producerName, producer)
-
-	fmt.Println(producerMap)
 
 	return nil
 }

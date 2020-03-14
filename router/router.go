@@ -20,6 +20,6 @@ func InitRouter(r *gin.Engine) {
 	// Version
 	r.GET(urlPrefix+"/api/version", api.Version)
 
-	// 管理后端使用的API
 	initV1Router(r)
+	initV2Router(r)
 }

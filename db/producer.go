@@ -8,8 +8,9 @@ import (
 )
 
 type Producer struct {
-	ID   uint64 `gorm:"primary_key;"`
-	Name string `gorm:"not null;unique;type:varchar(256);"`
+	ID     uint64 `gorm:"primary_key;"`
+	Name   string `gorm:"not null;unique;type:varchar(256);"`
+	Config string `gorm:"not null;size(2048)"`
 
 	ProducerPluginID uint64
 }
