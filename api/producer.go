@@ -29,13 +29,7 @@ func AddProducer(c *gin.Context) {
 		return
 	}
 
-	err = service.NewProducer(request.PluginName, request.ProducerName, request.Config)
-	if err != nil {
-		dto.Response200FailJson(c, err)
-		return
-	}
-
-	err = service.AddProducer(request.PluginName, request.ProducerName, request.Config)
+	err = service.AddProducer(request.PluginID, request.ProducerName, request.Config)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return
@@ -75,6 +69,12 @@ func DeleteProducer(c *gin.Context) {
 		return
 	}
 
+	err = service.DeleteProducer(id)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
 	dto.Response200Json(c, "删除事件生产者成功")
 }
 
@@ -88,18 +88,27 @@ func DeleteProducer(c *gin.Context) {
 // @Success 200 {object} dto.GetProducersResponse
 // @Failure 400 {object} dto.GetProducersResponse
 // @Failure 500 {object} dto.GetProducersResponse
-// @Router /event/api/v1/producer-plugins/{pluginName}/producers [get]
+// @Router /event/api/v1/producer-plugins/{pluginId}/producers [get]
 func GetPluginProducers(c *gin.Context) {
-	pluginName := c.Param("pluginName")
-	if utils.IsStringEmpty(pluginName) {
+	pluginIDStr := c.Param("pluginId")
+	if utils.IsStringEmpty(pluginIDStr) {
 		c.JSON(http.StatusBadRequest, dto.GetProducersResponse{
-			MsgResponse: dto.FormFailureMsgResponse("获取某个插件下的所有事件生产者失败", errors.New("没有传递pluginName")),
+			MsgResponse: dto.FormFailureMsgResponse("获取某个插件下的所有事件生产者失败", errors.New("没有传递pluginId")),
 			Producers:   dto.FormProducerInfoWithIDBatch(nil),
 		})
 		return
 	}
 
-	producers, err := service.GetPluginProducers(pluginName)
+	pluginID, err := strconv.ParseUint(pluginIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusOK, dto.GetProducersResponse{
+			MsgResponse: dto.FormFailureMsgResponse("获取某个插件下的所有事件生产者失败", err),
+			Producers:   dto.FormProducerInfoWithIDBatch(nil),
+		})
+		return
+	}
+
+	producers, err := service.GetPluginProducers(pluginID)
 	if err != nil {
 		c.JSON(http.StatusOK, dto.GetProducersResponse{
 			MsgResponse: dto.FormFailureMsgResponse("获取某个插件下的所有事件生产者失败", err),

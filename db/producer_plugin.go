@@ -8,21 +8,21 @@ import (
 )
 
 type ProducerPlugin struct {
-	ID         uint64 `gorm:"primary_key;"`
-	Name       string `gorm:"not null;type:varchar(256);"`
-	PluginName string `gorm:"not null;type:varchar(256);"`
+	ID             uint64 `gorm:"primary_key;"`
+	Name           string `gorm:"not null;type:varchar(256);"`
+	PluginFileName string `gorm:"not null;type:varchar(256);"`
 
 	Producers []Producer
 }
 
 func (p *ProducerPlugin) Create() error {
-	if utils.IsStringEmpty(p.Name) || utils.IsStringEmpty(p.PluginName) {
+	if utils.IsStringEmpty(p.Name) || utils.IsStringEmpty(p.PluginFileName) {
 		utils.PrintErr("ProducerPlugin.Create", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
 	var existCount uint64
-	err := getInstance().Where("name = ? AND plugin_name = ?", p.Name, p.PluginName).Count(&existCount).Error
+	err := getInstance().Where("plugin_file_name = ?", p.PluginFileName).Count(&existCount).Error
 	if err != nil {
 		utils.PrintCallErr("ProducerPlugin.Create", "Count exist plugin", err)
 		return err
@@ -67,15 +67,15 @@ func (p *ProducerPlugin) GetByID() error {
 	return nil
 }
 
-func (p *ProducerPlugin) DeleteByIDAndName() error {
-	if p.ID == 0 || utils.IsStringEmpty(p.Name) {
-		utils.PrintErr("ProducerPlugin.DeleteByIDAndName", "没有传递必要的参数")
+func (p *ProducerPlugin) DeleteByID() error {
+	if p.ID == 0 {
+		utils.PrintErr("ProducerPlugin.DeleteByID", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	err := getInstance().Where("id = ? AND name = ?", p.ID, p.Name).Delete(p).Error
+	err := getInstance().Where("id = ?", p.ID).Delete(p).Error
 	if err != nil {
-		utils.PrintCallErr("DeleteByIDAndName", "Delete producer plugin", err)
+		utils.PrintCallErr("DeleteByID", "Delete producer plugin", err)
 		return err
 	}
 

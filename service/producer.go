@@ -7,13 +7,13 @@ import (
 	"errors"
 )
 
-func AddProducer(pluginName string, producerName string, conf string) error {
-	if utils.IsStringEmpty(pluginName) || utils.IsStringEmpty(producerName) {
+func AddProducer(pluginID uint64, producerName string, conf string) error {
+	if pluginID == 0 || utils.IsStringEmpty(producerName) {
 		utils.PrintErr("AddProducer", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	p := &db.ProducerPlugin{Name: pluginName}
+	p := &db.ProducerPlugin{ID: pluginID}
 	err := p.GetByID()
 	if err != nil {
 		utils.PrintCallErr("AddProducer", "p.GetByID", err)
@@ -57,13 +57,13 @@ func DeleteProducer(producerID uint64) error {
 	return nil
 }
 
-func DeletePluginProducers(pluginName string) error {
-	if utils.IsStringEmpty(pluginName) {
+func DeletePluginProducers(pluginID uint64) error {
+	if pluginID == 0 {
 		utils.PrintErr("DeleteAllProducers", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	p := &db.ProducerPlugin{Name: pluginName}
+	p := &db.ProducerPlugin{ID: pluginID}
 	err := p.GetByID()
 	if err != nil {
 		utils.PrintCallErr("DeleteAllProducers", "p.GetByID", err)
@@ -96,24 +96,18 @@ func DeletePluginProducers(pluginName string) error {
 			utils.PrintCallErr("DeleteAllProducers", "p.DeleteByID", err)
 			return err
 		}
-
-		err = DestroyProducer(pluginName, producer.Name)
-		if err != nil {
-			utils.PrintCallErr("DeleteAllProducers", "DestroyProducer", err)
-			return err
-		}
 	}
 
 	return nil
 }
 
-func GetPluginProducers(pluginName string) ([]model.ProducerInfo, error) {
-	if utils.IsStringEmpty(pluginName) {
+func GetPluginProducers(pluginID uint64) ([]model.ProducerInfo, error) {
+	if pluginID == 0 {
 		utils.PrintErr("GetPluginProducers", "没有传递必要的参数")
 		return nil, errors.New("没有传递必要的参数")
 	}
 
-	p := &db.ProducerPlugin{Name: pluginName}
+	p := &db.ProducerPlugin{ID: pluginID}
 	err := p.GetByID()
 	if err != nil {
 		utils.PrintCallErr("GetPluginProducers", "p.GetByID", err)

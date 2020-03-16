@@ -12,7 +12,8 @@ type GetProducerPluginsResponse struct {
 }
 
 type ProducerPluginInfo struct {
-	PluginName string `json:"pluginName" binding:"required"`
+	PluginName     string `json:"pluginName" binding:"required"`
+	PluginFileName string `json:"pluginFileName" binding:"required"`
 }
 
 type ProducerPluginInfoWithID struct {
