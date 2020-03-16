@@ -7,11 +7,15 @@ import (
 
 var (
 	v1PostRouter = map[string]gin.HandlerFunc{
-		"/add/consumer": api.AddConsumer,
+		"/add/producer-plugin": api.AddProducerPlugin,
+		"/add/producer":        api.AddProducer,
+		"/add/consumer":        api.AddConsumer,
 	}
 
 	v1DeleteRouter = map[string]gin.HandlerFunc{
-		"/delete/consumer/:id": api.DeleteConsumer,
+		"/delete/producer-plugin/:id": api.DeleteProducerPlugin,
+		"/delete/producer/:id":        api.DeleteProducer,
+		"/delete/consumer/:id":        api.DeleteConsumer,
 	}
 
 	v1PutRouter = map[string]gin.HandlerFunc{}

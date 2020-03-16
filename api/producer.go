@@ -20,7 +20,7 @@ import (
 // @Success 200 {object} dto.MsgResponse
 // @Failure 400 {object} dto.MsgResponse
 // @Failure 500 {object} dto.MsgResponse
-// @Router /event/api/v2/add/producer [post]
+// @Router /event/api/v1/add/producer [post]
 func AddProducer(c *gin.Context) {
 	request := &dto.AddProducerRequest{}
 	err := c.ShouldBindJSON(request)
@@ -48,7 +48,7 @@ func AddProducer(c *gin.Context) {
 // @Success 200 {object} dto.MsgResponse
 // @Failure 400 {object} dto.MsgResponse
 // @Failure 500 {object} dto.MsgResponse
-// @Router /event/api/v2/delete/producer/{id} [delete]
+// @Router /event/api/v1/delete/producer/{id} [delete]
 func DeleteProducer(c *gin.Context) {
 	idStr := c.Param("id")
 	if utils.IsStringEmpty(idStr) {

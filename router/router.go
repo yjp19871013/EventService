@@ -21,5 +21,4 @@ func InitRouter(r *gin.Engine) {
 	r.GET(urlPrefix+"/api/version", api.Version)
 
 	initV1Router(r)
-	initV2Router(r)
 }
