@@ -1,16 +1,26 @@
 package service
 
 import (
+	"com.fs/event-service/config"
 	"com.fs/event-service/db"
 	"com.fs/event-service/service/model"
 	"com.fs/event-service/utils"
 	"errors"
+	"path/filepath"
 )
 
 func AddProducerPlugin(pluginName string, pluginFileName string) error {
 	if utils.IsStringEmpty(pluginName) || utils.IsStringEmpty(pluginFileName) {
 		utils.PrintErr("AddProducerPlugin", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
+	}
+
+	conf := config.GetEventServiceConfig().PluginConfig
+	pluginPath := filepath.Join(conf.Dir, pluginFileName)
+	exist := utils.PathExists(pluginPath)
+	if !exist {
+		utils.PrintErr("AddProducerPlugin", pluginFileName+"插件文件不存在")
+		return errors.New(pluginFileName + "插件文件不存在")
 	}
 
 	p := &db.ProducerPlugin{Name: pluginName, PluginFileName: pluginFileName}
