@@ -1,11 +1,14 @@
 package router
 
 import (
+	"com.fs/event-service/api"
 	"github.com/gin-gonic/gin"
 )
 
 var (
-	v2PostRouter = map[string]gin.HandlerFunc{}
+	v2PostRouter = map[string]gin.HandlerFunc{
+		"/load/producer-plugin/:id": api.LoadPlugin,
+	}
 
 	v2DeleteRouter = map[string]gin.HandlerFunc{}
 

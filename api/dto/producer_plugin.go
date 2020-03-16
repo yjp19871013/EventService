@@ -11,6 +11,10 @@ type GetProducerPluginsResponse struct {
 	ProducerPlugins []ProducerPluginInfoWithID
 }
 
+type LoadPluginRequest struct {
+	ID uint64 `json:"id" binding:"required"`
+}
+
 type ProducerPluginInfo struct {
 	PluginName     string `json:"pluginName" binding:"required"`
 	PluginFileName string `json:"pluginFileName" binding:"required"`

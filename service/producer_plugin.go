@@ -1,12 +1,18 @@
 package service
 
 import (
+	"com.fs/event-service/api/dto"
 	"com.fs/event-service/config"
 	"com.fs/event-service/db"
+	"com.fs/event-service/http_client"
 	"com.fs/event-service/service/model"
 	"com.fs/event-service/utils"
+	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"net/http"
 	"path/filepath"
+	"strconv"
 )
 
 func AddProducerPlugin(pluginName string, pluginFileName string) error {
@@ -63,4 +69,78 @@ func GetProducerPlugins() ([]model.ProducerPluginInfo, error) {
 	}
 
 	return model.TransferProducerPluginToProducerPluginInfoBatch(plugins), nil
+}
+
+func LoadPluginService(pluginID uint64) error {
+	if pluginID == 0 {
+		utils.PrintErr("LoadPluginService", "没有传递必要的参数")
+		return errors.New("没有传递必要的参数")
+	}
+
+	pluginIDStr := strconv.FormatUint(pluginID, 10)
+
+	conf := config.GetEventServiceConfig().ServicesConfig
+	for _, baseUrl := range conf.BaseUrls {
+		url := baseUrl + "/api/v2/load/producer-plugin/" + pluginIDStr
+		request := dto.LoadPluginRequest{ID: pluginID}
+		requestJson, err := json.Marshal(request)
+		if err != nil {
+			utils.PrintCallErr("LoadPluginService", "json.Marshal", err)
+			return err
+		}
+
+		client := http_client.NewHttpClient(config.HttpTimeoutSec)
+		response, err := client.Post(url, string(requestJson), "application/json")
+		if err != nil {
+			utils.PrintCallErr("LoadPluginService", "client.Post", err)
+			return err
+		}
+
+		if response.StatusCode != http.StatusOK {
+			utils.PrintErr("LoadPluginService", baseUrl+": 响应失败")
+			return errors.New(baseUrl + ": 响应失败")
+		}
+
+		responseByte, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			utils.PrintCallErr("LoadPluginService", "ioutil.ReadAll", err)
+			return err
+		}
+
+		loadPluginResponse := &dto.MsgResponse{}
+		err = json.Unmarshal(responseByte, loadPluginResponse)
+		if err != nil {
+			utils.PrintCallErr("LoadPluginService", "json.Unmarshal", err)
+			return err
+		}
+
+		if !loadPluginResponse.Success {
+			utils.PrintErr("LoadPluginService", loadPluginResponse.Msg)
+			return errors.New(loadPluginResponse.Msg)
+		}
+	}
+
+	return nil
+}
+
+func LoadPlugin(pluginID uint64) error {
+	if pluginID == 0 {
+		utils.PrintErr("LoadPlugin", "没有传递必要的参数")
+		return errors.New("没有传递必要的参数")
+	}
+
+	p := &db.ProducerPlugin{ID: pluginID}
+	err := p.GetByID()
+	if err != nil {
+		utils.PrintCallErr("LoadPlugin", "p.GetByID", err)
+		return err
+	}
+
+	err = loader.loadProducerPlugin(p.PluginFileName)
+	if err != nil {
+		utils.PrintCallErr("LoadPlugin", "loader.loadProducerPlugin", err)
+		return err
+	}
+
+	return nil
 }

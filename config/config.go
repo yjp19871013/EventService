@@ -21,11 +21,16 @@ type pluginConfig struct {
 	Dir string `json:"dir"`
 }
 
+type servicesConfig struct {
+	BaseUrls []string `json:"baseUrls"`
+}
+
 type eventServiceConfig struct {
 	Version        string         `json:"version"`
 	ServerConfig   serverConfig   `json:"server"`
 	DatabaseConfig databaseConfig `json:"database"`
 	PluginConfig   pluginConfig   `json:"plugins"`
+	ServicesConfig servicesConfig `json:"services"`
 }
 
 var conf = &eventServiceConfig{}

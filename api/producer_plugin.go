@@ -102,3 +102,57 @@ func GetProducerPlugins(c *gin.Context) {
 		ProducerPlugins: dto.FormProducerPluginInfoWithIDBatch(ps),
 	})
 }
+
+// LoadPluginService godoc
+// @Summary 加载所有服务的事件生产者插件
+// @Description 加载所有服务的事件生产者插件
+// @Tags 事件生产者插件
+// @Accept  json
+// @Produce json
+// @Param LoadPluginRequest body dto.LoadPluginRequest true "加载所有服务的事件生产者插件请求"
+// @Success 200 {object} dto.MsgResponse
+// @Failure 400 {object} dto.MsgResponse
+// @Failure 500 {object} dto.MsgResponse
+// @Router /event/api/v1/load/producer-plugin/{id} [post]
+func LoadPluginService(c *gin.Context) {
+	request := &dto.LoadPluginRequest{}
+	err := c.ShouldBindJSON(request)
+	if err != nil {
+		dto.Response400Json(c, err)
+	}
+
+	err = service.LoadPluginService(request.ID)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	dto.Response200Json(c, "加载事件生产者插件成功")
+}
+
+// LoadPlugin godoc
+// @Summary 加载事件生产者插件
+// @Description 加载事件生产者插件
+// @Tags 事件生产者插件
+// @Accept  json
+// @Produce json
+// @Param LoadPluginRequest body dto.LoadPluginRequest true "加载事件生产者插件请求"
+// @Success 200 {object} dto.MsgResponse
+// @Failure 400 {object} dto.MsgResponse
+// @Failure 500 {object} dto.MsgResponse
+// @Router /event/api/v2/load/producer-plugin/{id} [post]
+func LoadPlugin(c *gin.Context) {
+	request := &dto.LoadPluginRequest{}
+	err := c.ShouldBindJSON(request)
+	if err != nil {
+		dto.Response400Json(c, err)
+	}
+
+	err = service.LoadPlugin(request.ID)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	dto.Response200Json(c, "加载事件生产者插件成功")
+}
