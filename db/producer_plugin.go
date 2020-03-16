@@ -8,19 +8,32 @@ import (
 )
 
 type ProducerPlugin struct {
-	ID   uint64 `gorm:"primary_key;"`
-	Name string `gorm:"not null;unique;type:varchar(256);"`
+	ID         uint64 `gorm:"primary_key;"`
+	Name       string `gorm:"not null;type:varchar(256);"`
+	PluginName string `gorm:"not null;type:varchar(256);"`
 
 	Producers []Producer
 }
 
 func (p *ProducerPlugin) Create() error {
-	if utils.IsStringEmpty(p.Name) {
+	if utils.IsStringEmpty(p.Name) || utils.IsStringEmpty(p.PluginName) {
 		utils.PrintErr("ProducerPlugin.Create", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	err := getInstance().Create(p).Error
+	var existCount uint64
+	err := getInstance().Where("name = ? AND plugin_name = ?", p.Name, p.PluginName).Count(&existCount).Error
+	if err != nil {
+		utils.PrintCallErr("ProducerPlugin.Create", "Count exist plugin", err)
+		return err
+	}
+
+	if existCount != 0 {
+		utils.PrintErr("ProducerPlugin.Create", "生产者插件已存在")
+		return errors.New("生产者插件已存在")
+	}
+
+	err = getInstance().Create(p).Error
 	if err != nil {
 		if strings.Contains(err.Error(), "Error 1062") {
 			utils.PrintErr("ProducerPlugin.Create", "生产者插件已存在")
@@ -34,20 +47,20 @@ func (p *ProducerPlugin) Create() error {
 	return nil
 }
 
-func (p *ProducerPlugin) GetByName() error {
-	if utils.IsStringEmpty(p.Name) {
-		utils.PrintErr("ProducerPlugin.GetByName", "没有传递必要的参数")
+func (p *ProducerPlugin) GetByID() error {
+	if p.ID == 0 {
+		utils.PrintErr("ProducerPlugin.GetByID", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	err := getInstance().Where("name = ?", p.Name).First(p).Error
+	err := getInstance().Where("id = ?", p.ID).First(p).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			utils.PrintErr("ProducerPlugin.GetByName", "生产者插件不存在")
+			utils.PrintErr("ProducerPlugin.GetByID", "生产者插件不存在")
 			return errors.New("生产者插件不存在")
 		}
 
-		utils.PrintCallErr("ProducerPlugin.GetByName", "Find producer plugin", err)
+		utils.PrintCallErr("ProducerPlugin.GetByID", "Find producer plugin", err)
 		return err
 	}
 

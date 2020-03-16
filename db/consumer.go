@@ -9,19 +9,33 @@ import (
 
 type Consumer struct {
 	ID   uint64 `gorm:"primary_key;"`
-	Name string `gorm:"not null;unique;type:varchar(256);"`
+	Name string `gorm:"not null;type:varchar(256);"`
 	Url  string `gorm:"not null;type:varchar(2048);"`
 
 	ProducerID uint64
 }
 
 func (consumer *Consumer) Create() error {
-	if utils.IsStringEmpty(consumer.Name) || utils.IsStringEmpty(consumer.Url) {
+	if utils.IsStringEmpty(consumer.Name) || utils.IsStringEmpty(consumer.Url) || consumer.ProducerID == 0 {
 		utils.PrintErr("Consumer.Create", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	err := getInstance().Create(consumer).Error
+	var existCount uint64
+	err := getInstance().Where("name = ? AND url = ? AND producer_id = ?",
+		consumer.Name, consumer.Url, consumer.ProducerID).
+		Count(&existCount).Error
+	if err != nil {
+		utils.PrintCallErr("Consumer.Create", "Count exist consumer", err)
+		return err
+	}
+
+	if existCount != 0 {
+		utils.PrintErr("Consumer.Create", "消费者已存在")
+		return errors.New("消费者已存在")
+	}
+
+	err = getInstance().Create(consumer).Error
 	if err != nil {
 		if strings.Contains(err.Error(), "Error 1062") {
 			utils.PrintErr("Consumer.Create", "消费者已存在")
@@ -35,37 +49,35 @@ func (consumer *Consumer) Create() error {
 	return nil
 }
 
-func (consumer *Consumer) GetByNameAndProducerID() error {
-	if utils.IsStringEmpty(consumer.Name) || consumer.ProducerID == 0 {
-		utils.PrintErr("Consumer.GetByNameAndProducerID", "没有传递必要的参数")
+func (consumer *Consumer) GetByID() error {
+	if consumer.ID == 0 {
+		utils.PrintErr("Consumer.GetByID", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	err := getInstance().Where("name = ? AND producer_id = ?",
-		consumer.Name, consumer.ProducerID).
-		First(consumer).Error
+	err := getInstance().Where("id = ?", consumer.ID).First(consumer).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			utils.PrintErr("Consumer.GetByNameAndProducerID", "消费者不存在")
+			utils.PrintErr("Consumer.GetByID", "消费者不存在")
 			return errors.New("消费者不存在")
 		}
 
-		utils.PrintCallErr("Consumer.GetByNameAndProducerID", "Find consumer", err)
+		utils.PrintCallErr("Consumer.GetByID", "Find consumer", err)
 		return err
 	}
 
 	return nil
 }
 
-func (consumer *Consumer) DeleteByIDAndName() error {
-	if consumer.ID == 0 || utils.IsStringEmpty(consumer.Name) {
-		utils.PrintErr("Consumer.DeleteByIDAndName", "没有传递必要的参数")
+func (consumer *Consumer) DeleteByID() error {
+	if consumer.ID == 0 {
+		utils.PrintErr("Consumer.DeleteByID", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	err := getInstance().Where("id = ? AND name = ?", consumer.ID, consumer.Name).Delete(consumer).Error
+	err := getInstance().Where("id = ?", consumer.ID).Delete(consumer).Error
 	if err != nil {
-		utils.PrintCallErr("DeleteByIDAndName", "Delete consumer", err)
+		utils.PrintCallErr("DeleteByID", "Delete consumer", err)
 		return err
 	}
 

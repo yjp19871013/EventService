@@ -14,9 +14,9 @@ func AddProducer(pluginName string, producerName string, conf string) error {
 	}
 
 	p := &db.ProducerPlugin{Name: pluginName}
-	err := p.GetByName()
+	err := p.GetByID()
 	if err != nil {
-		utils.PrintCallErr("AddProducer", "p.GetByName", err)
+		utils.PrintCallErr("AddProducer", "p.GetByID", err)
 		return err
 	}
 
@@ -35,51 +35,38 @@ func AddProducer(pluginName string, producerName string, conf string) error {
 	return nil
 }
 
-func DeleteProducer(pluginName string, producerName string) error {
-	if utils.IsStringEmpty(pluginName) || utils.IsStringEmpty(producerName) {
+func DeleteProducer(producerID uint64) error {
+	if producerID == 0 {
 		utils.PrintErr("DeleteProducer", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	p := &db.ProducerPlugin{Name: pluginName}
-	err := p.GetByName()
+	producer := &db.Producer{ID: producerID}
+	err := producer.GetByID()
 	if err != nil {
-		utils.PrintCallErr("DeleteProducer", "p.GetByName", err)
+		utils.PrintCallErr("DeleteProducer", "producer.GetByID", err)
 		return err
 	}
 
-	producer := &db.Producer{Name: producerName, ProducerPluginID: p.ID}
-	err = producer.GetByNameAndProducerPluginID()
+	err = producer.DeleteByID()
 	if err != nil {
-		utils.PrintCallErr("DeleteProducer", "producer.GetByNameAndProducerPluginID", err)
-		return err
-	}
-
-	err = producer.DeleteByIDAndName()
-	if err != nil {
-		utils.PrintCallErr("DeleteProducer", "producer.DeleteByIDAndName", err)
-		return err
-	}
-
-	err = DestroyProducer(pluginName, producerName)
-	if err != nil {
-		utils.PrintCallErr("DeleteProducer", "producer.DeleteByIDAndName", err)
+		utils.PrintCallErr("DeleteProducer", "producer.DeleteByID", err)
 		return err
 	}
 
 	return nil
 }
 
-func DeleteAllProducers(pluginName string) error {
+func DeletePluginProducers(pluginName string) error {
 	if utils.IsStringEmpty(pluginName) {
 		utils.PrintErr("DeleteAllProducers", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
 	p := &db.ProducerPlugin{Name: pluginName}
-	err := p.GetByName()
+	err := p.GetByID()
 	if err != nil {
-		utils.PrintCallErr("DeleteAllProducers", "p.GetByName", err)
+		utils.PrintCallErr("DeleteAllProducers", "p.GetByID", err)
 		return err
 	}
 
@@ -97,16 +84,16 @@ func DeleteAllProducers(pluginName string) error {
 		}
 
 		for _, consumer := range consumers {
-			err := consumer.DeleteByIDAndName()
+			err := consumer.DeleteByID()
 			if err != nil {
 				utils.PrintCallErr("DeleteAllProducers", "producer.DeleteByIDAndName", err)
 				return err
 			}
 		}
 
-		err = producer.DeleteByIDAndName()
+		err = producer.DeleteByID()
 		if err != nil {
-			utils.PrintCallErr("DeleteAllProducers", "p.DeleteByIDAndName", err)
+			utils.PrintCallErr("DeleteAllProducers", "p.DeleteByID", err)
 			return err
 		}
 
@@ -127,9 +114,9 @@ func GetPluginProducers(pluginName string) ([]model.ProducerInfo, error) {
 	}
 
 	p := &db.ProducerPlugin{Name: pluginName}
-	err := p.GetByName()
+	err := p.GetByID()
 	if err != nil {
-		utils.PrintCallErr("GetPluginProducers", "p.GetByName", err)
+		utils.PrintCallErr("GetPluginProducers", "p.GetByID", err)
 		return nil, err
 	}
 

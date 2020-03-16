@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 // AddConsumer godoc
@@ -28,7 +29,7 @@ func AddConsumer(c *gin.Context) {
 		return
 	}
 
-	err = service.AddConsumer(request.ProducerName, request.ConsumerName, request.Url)
+	err = service.AddConsumer(request.ProducerID, request.ConsumerName, request.Url)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return
@@ -48,21 +49,21 @@ func AddConsumer(c *gin.Context) {
 // @Success 200 {object} dto.MsgResponse
 // @Failure 400 {object} dto.MsgResponse
 // @Failure 500 {object} dto.MsgResponse
-// @Router /event/api/v1/delete/producer/{producerName}/consumer/{consumerName} [delete]
+// @Router /event/api/v1/delete/consumer/{id} [delete]
 func DeleteConsumer(c *gin.Context) {
-	producerName := c.Param("producerName")
-	if utils.IsStringEmpty(producerName) {
-		dto.Response400Json(c, errors.New("没有传递producerName"))
+	idStr := c.Param("id")
+	if utils.IsStringEmpty(idStr) {
+		dto.Response400Json(c, errors.New("没有传递idStr"))
 		return
 	}
 
-	consumerName := c.Param("consumerName")
-	if utils.IsStringEmpty(consumerName) {
-		dto.Response400Json(c, errors.New("没有传递consumerName"))
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		dto.Response200FailJson(c, err)
 		return
 	}
 
-	err := service.DeleteConsumer(producerName, consumerName)
+	err = service.DeleteConsumer(id)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return
@@ -81,18 +82,27 @@ func DeleteConsumer(c *gin.Context) {
 // @Success 200 {object} dto.GetConsumersResponse
 // @Failure 400 {object} dto.GetConsumersResponse
 // @Failure 500 {object} dto.GetConsumersResponse
-// @Router /event/api/v1/producer/{producerName}/consumers [get]
+// @Router /event/api/v1/producer/{producerId}/consumers [get]
 func GetProducerConsumers(c *gin.Context) {
-	producerName := c.Param("producerName")
-	if utils.IsStringEmpty(producerName) {
+	producerIdStr := c.Param("producerId")
+	if utils.IsStringEmpty(producerIdStr) {
 		c.JSON(http.StatusBadRequest, dto.GetConsumersResponse{
-			MsgResponse: dto.FormFailureMsgResponse("获取某个生产者下的所有事件消费者失败", errors.New("没有传递producerName")),
+			MsgResponse: dto.FormFailureMsgResponse("获取某个生产者下的所有事件消费者失败", errors.New("没有传递producerId")),
 			Consumers:   dto.FormConsumerInfoWithIDBatch(nil),
 		})
 		return
 	}
 
-	consumers, err := service.GetProducerConsumers(producerName)
+	producerID, err := strconv.ParseUint(producerIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusOK, dto.GetConsumersResponse{
+			MsgResponse: dto.FormFailureMsgResponse("获取某个生产者下的所有事件消费者失败", err),
+			Consumers:   dto.FormConsumerInfoWithIDBatch(nil),
+		})
+		return
+	}
+
+	consumers, err := service.GetProducerConsumers(producerID)
 	if err != nil {
 		c.JSON(http.StatusOK, dto.GetConsumersResponse{
 			MsgResponse: dto.FormFailureMsgResponse("获取某个生产者下的所有事件消费者失败", err),

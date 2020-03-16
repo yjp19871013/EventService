@@ -3,7 +3,7 @@ package dto
 import "com.fs/event-service/service/model"
 
 type AddConsumerRequest struct {
-	ProducerName string `json:"producerName" binding:"required"`
+	ProducerID   uint64 `json:"producerId" binding:"required"`
 	ConsumerName string `json:"consumerName" binding:"required"`
 	Url          string `json:"url" binding:"required"`
 }

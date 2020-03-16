@@ -7,16 +7,16 @@ import (
 	"errors"
 )
 
-func AddConsumer(producerName string, consumerName string, url string) error {
-	if utils.IsStringEmpty(producerName) || utils.IsStringEmpty(consumerName) {
+func AddConsumer(producerID uint64, consumerName string, url string) error {
+	if producerID == 0 || utils.IsStringEmpty(consumerName) || utils.IsStringEmpty(url) {
 		utils.PrintErr("AddConsumer", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	producer := &db.Producer{Name: producerName}
-	err := producer.GetByName()
+	producer := &db.Producer{ID: producerID}
+	err := producer.GetByID()
 	if err != nil {
-		utils.PrintCallErr("AddConsumer", "p.GetByName", err)
+		utils.PrintCallErr("AddConsumer", "p.GetByID", err)
 		return err
 	}
 
@@ -35,27 +35,15 @@ func AddConsumer(producerName string, consumerName string, url string) error {
 	return nil
 }
 
-func DeleteConsumer(producerName string, consumerName string) error {
-	if utils.IsStringEmpty(producerName) || utils.IsStringEmpty(consumerName) {
+func DeleteConsumer(id uint64) error {
+	if id == 0 {
 		utils.PrintErr("DeleteConsumer", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	producer := &db.Producer{Name: producerName}
-	err := producer.GetByName()
-	if err != nil {
-		utils.PrintCallErr("DeleteConsumer", "producer.GetByName", err)
-		return err
-	}
+	consumer := &db.Consumer{ID: id}
 
-	consumer := &db.Consumer{Name: consumerName, ProducerID: producer.ID}
-	err = consumer.GetByNameAndProducerID()
-	if err != nil {
-		utils.PrintCallErr("DeleteConsumer", "producer.GetByNameAndProducerID", err)
-		return err
-	}
-
-	err = consumer.DeleteByIDAndName()
+	err := consumer.DeleteByID()
 	if err != nil {
 		utils.PrintCallErr("DeleteConsumer", "consumer.DeleteByIDAndName", err)
 		return err
@@ -64,16 +52,16 @@ func DeleteConsumer(producerName string, consumerName string) error {
 	return nil
 }
 
-func DeleteAllConsumers(producerName string) error {
-	if utils.IsStringEmpty(producerName) {
+func DeleteProducerConsumers(producerID uint64) error {
+	if producerID == 0 {
 		utils.PrintErr("DeleteAllConsumers", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	producer := &db.Producer{Name: producerName}
-	err := producer.GetByName()
+	producer := &db.Producer{ID: producerID}
+	err := producer.GetByID()
 	if err != nil {
-		utils.PrintCallErr("DeleteAllConsumers", "producer.GetByName", err)
+		utils.PrintCallErr("DeleteAllConsumers", "producer.GetByID", err)
 		return err
 	}
 
@@ -84,7 +72,7 @@ func DeleteAllConsumers(producerName string) error {
 	}
 
 	for _, consumer := range consumers {
-		err := consumer.DeleteByIDAndName()
+		err := consumer.DeleteByID()
 		if err != nil {
 			utils.PrintCallErr("DeleteAllConsumers", "consumer.DeleteByIDAndName", err)
 			return err
@@ -94,16 +82,16 @@ func DeleteAllConsumers(producerName string) error {
 	return nil
 }
 
-func GetProducerConsumers(producerName string) ([]model.ConsumerInfo, error) {
-	if utils.IsStringEmpty(producerName) {
+func GetProducerConsumers(producerID uint64) ([]model.ConsumerInfo, error) {
+	if producerID == 0 {
 		utils.PrintErr("GetProducerConsumers", "没有传递必要的参数")
 		return nil, errors.New("没有传递必要的参数")
 	}
 
-	producer := &db.Producer{Name: producerName}
-	err := producer.GetByName()
+	producer := &db.Producer{ID: producerID}
+	err := producer.GetByID()
 	if err != nil {
-		utils.PrintCallErr("GetProducerConsumers", "producer.GetByName", err)
+		utils.PrintCallErr("GetProducerConsumers", "producer.GetByID", err)
 		return nil, err
 	}
 

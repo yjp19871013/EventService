@@ -61,7 +61,7 @@ func DeleteProducerPlugin(c *gin.Context) {
 		return
 	}
 
-	err := service.DeleteAllProducers(pluginName)
+	err := service.DeletePluginProducers(pluginName)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
 	"net/http"
+	"strconv"
 )
 
 // AddProducer godoc
@@ -54,27 +55,21 @@ func AddProducer(c *gin.Context) {
 // @Success 200 {object} dto.MsgResponse
 // @Failure 400 {object} dto.MsgResponse
 // @Failure 500 {object} dto.MsgResponse
-// @Router /event/api/v2/delete/producer-plugin/{pluginName}/producer/{producerName} [delete]
+// @Router /event/api/v2/delete/producer/{id} [delete]
 func DeleteProducer(c *gin.Context) {
-	pluginName := c.Param("pluginName")
-	if utils.IsStringEmpty(pluginName) {
-		dto.Response400Json(c, errors.New("没有传递pluginName"))
+	idStr := c.Param("id")
+	if utils.IsStringEmpty(idStr) {
+		dto.Response400Json(c, errors.New("没有传递id"))
 		return
 	}
 
-	producerName := c.Param("producerName")
-	if utils.IsStringEmpty(producerName) {
-		dto.Response400Json(c, errors.New("没有传递producerName"))
-		return
-	}
-
-	err := service.DeleteAllConsumers(producerName)
+	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return
 	}
 
-	err = service.DeleteProducer(pluginName, producerName)
+	err = service.DeleteProducerConsumers(id)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return

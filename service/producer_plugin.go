@@ -30,9 +30,9 @@ func DeleteProducerPlugin(pluginName string) error {
 	}
 
 	p := &db.ProducerPlugin{Name: pluginName}
-	err := p.GetByName()
+	err := p.GetByID()
 	if err != nil {
-		utils.PrintCallErr("DeleteProducerPlugin", "p.GetByName", err)
+		utils.PrintCallErr("DeleteProducerPlugin", "p.GetByID", err)
 		return err
 	}
 
