@@ -44,7 +44,7 @@ func AddProducerPlugin(c *gin.Context) {
 // @Tags 事件生产者插件
 // @Accept  json
 // @Produce json
-// @Param pluginName path string true "插件名称"
+// @Param id path string true "插件ID"
 // @Success 200 {object} dto.MsgResponse
 // @Failure 400 {object} dto.MsgResponse
 // @Failure 500 {object} dto.MsgResponse

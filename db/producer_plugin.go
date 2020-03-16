@@ -22,7 +22,9 @@ func (p *ProducerPlugin) Create() error {
 	}
 
 	var existCount uint64
-	err := getInstance().Where("plugin_file_name = ?", p.PluginFileName).Count(&existCount).Error
+	err := getInstance().Model(&ProducerPlugin{}).Where("name = ? OR plugin_file_name = ?",
+		p.Name, p.PluginFileName).
+		Count(&existCount).Error
 	if err != nil {
 		utils.PrintCallErr("ProducerPlugin.Create", "Count exist plugin", err)
 		return err

@@ -42,8 +42,13 @@ func DeleteConsumer(id uint64) error {
 	}
 
 	consumer := &db.Consumer{ID: id}
+	err := consumer.GetByID()
+	if err != nil {
+		utils.PrintCallErr("DeleteConsumer", "consumer.GetByID", err)
+		return err
+	}
 
-	err := consumer.DeleteByID()
+	err = consumer.DeleteByID()
 	if err != nil {
 		utils.PrintCallErr("DeleteConsumer", "consumer.DeleteByIDAndName", err)
 		return err

@@ -44,8 +44,7 @@ func AddConsumer(c *gin.Context) {
 // @Tags 事件消费者
 // @Accept  json
 // @Produce json
-// @Param producerName path string true "事件生产者名称"
-// @Param consumerName path string true "事件消费者名称"
+// @Param id path string true "事件生产者ID"
 // @Success 200 {object} dto.MsgResponse
 // @Failure 400 {object} dto.MsgResponse
 // @Failure 500 {object} dto.MsgResponse
@@ -78,7 +77,7 @@ func DeleteConsumer(c *gin.Context) {
 // @Tags 事件消费者
 // @Accept  json
 // @Produce json
-// @Param producerName path string true "事件生产者名称"
+// @Param producerId path string true "事件生产者ID"
 // @Success 200 {object} dto.GetConsumersResponse
 // @Failure 400 {object} dto.GetConsumersResponse
 // @Failure 500 {object} dto.GetConsumersResponse

@@ -22,8 +22,8 @@ func (consumer *Consumer) Create() error {
 	}
 
 	var existCount uint64
-	err := getInstance().Where("name = ? AND url = ? AND producer_id = ?",
-		consumer.Name, consumer.Url, consumer.ProducerID).
+	err := getInstance().Model(&Consumer{}).Where("name = ? AND producer_id = ?",
+		consumer.Name, consumer.ProducerID).
 		Count(&existCount).Error
 	if err != nil {
 		utils.PrintCallErr("Consumer.Create", "Count exist consumer", err)

@@ -23,7 +23,7 @@ func (producer *Producer) Create() error {
 	}
 
 	var existCount uint64
-	err := getInstance().Where("name = ? AND producer_plugin_id = ?",
+	err := getInstance().Model(&Producer{}).Where("name = ? AND producer_plugin_id = ?",
 		producer.Name, producer.ProducerPluginID).Count(&existCount).Error
 	if err != nil {
 		utils.PrintCallErr("Producer.Create", "Count exist producer", err)
