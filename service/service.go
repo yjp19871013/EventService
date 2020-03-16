@@ -23,7 +23,7 @@ func initPluginsAndProducers() {
 	}
 
 	for _, p := range ps {
-		err := LoadProducerPlugin(p.Name)
+		err := loadProducerPlugin(p.Name)
 		if err != nil {
 			panic("Load: " + p.Name + err.Error())
 		}
@@ -34,9 +34,9 @@ func initPluginsAndProducers() {
 		}
 
 		for _, producer := range producers {
-			err := NewProducer(p.Name, producer.Name, producer.Config)
+			err := newProducer(p.Name, producer.Name, producer.Config)
 			if err != nil {
-				panic(p.Name + "=" + producer.Name + " NewProducer: " + err.Error())
+				panic(p.Name + "=" + producer.Name + " newProducer: " + err.Error())
 			}
 		}
 	}
@@ -55,12 +55,12 @@ func destroyPluginsAndProducers() {
 		}
 
 		for _, producer := range producers {
-			err := DestroyProducer(p.Name, producer.Name)
+			err := destroyProducer(p.Name, producer.Name)
 			if err != nil {
-				panic(p.Name + "=" + producer.Name + " DestroyProducer: " + err.Error())
+				panic(p.Name + "=" + producer.Name + " destroyProducer: " + err.Error())
 			}
 		}
 
-		UnloadProducerPlugin(p.Name)
+		unloadProducerPlugin(p.Name)
 	}
 }
