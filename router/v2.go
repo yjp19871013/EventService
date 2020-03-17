@@ -7,10 +7,12 @@ import (
 
 var (
 	v2PostRouter = map[string]gin.HandlerFunc{
-		"/load/producer-plugin/:id": api.LoadPlugin,
+		"/load/producer-plugin": api.LoadPlugin,
 	}
 
-	v2DeleteRouter = map[string]gin.HandlerFunc{}
+	v2DeleteRouter = map[string]gin.HandlerFunc{
+		"/unload/producer-plugin/:id": api.UnloadPlugin,
+	}
 
 	v2PutRouter = map[string]gin.HandlerFunc{}
 

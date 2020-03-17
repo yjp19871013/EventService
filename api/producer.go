@@ -147,3 +147,33 @@ func GetProducers(c *gin.Context) {
 		Producers:   dto.FormProducerInfoWithIDBatch(producers),
 	})
 }
+
+// NewProducerService godoc
+// @Summary 创建所有服务的生产者
+// @Description 创建所有服务的生产者
+// @Tags 事件生产者
+// @Accept  json
+// @Produce json
+// @Param NewProducerRequest body dto.NewProducerRequest true "创建所有服务的生产者请求"
+// @Success 200 {object} dto.MsgResponse
+// @Failure 400 {object} dto.MsgResponse
+// @Failure 500 {object} dto.MsgResponse
+// @Router /event/api/v1/new/producer [post]
+func NewProducerService(c *gin.Context) {
+
+}
+
+// NewProducer godoc
+// @Summary 创建生产者
+// @Description 创建生产者
+// @Tags 事件生产者
+// @Accept  json
+// @Produce json
+// @Param NewProducerRequest body dto.NewProducerRequest true "创建生产者请求"
+// @Success 200 {object} dto.MsgResponse
+// @Failure 400 {object} dto.MsgResponse
+// @Failure 500 {object} dto.MsgResponse
+// @Router /event/api/v2/new/producer [post]
+func NewProducer(c *gin.Context) {
+
+}

@@ -7,7 +7,7 @@ import (
 
 var (
 	v1PostRouter = map[string]gin.HandlerFunc{
-		"/load/producer-plugin/{id}": api.LoadPluginService,
+		"/load/producer-plugin": api.LoadPluginService,
 
 		"/add/producer-plugin": api.AddProducerPlugin,
 		"/add/producer":        api.AddProducer,
@@ -15,6 +15,8 @@ var (
 	}
 
 	v1DeleteRouter = map[string]gin.HandlerFunc{
+		"/unload/producer-plugin/:id": api.UnloadPluginService,
+
 		"/delete/producer-plugin/:id": api.DeleteProducerPlugin,
 		"/delete/producer/:id":        api.DeleteProducer,
 		"/delete/consumer/:id":        api.DeleteConsumer,

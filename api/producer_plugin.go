@@ -113,7 +113,7 @@ func GetProducerPlugins(c *gin.Context) {
 // @Success 200 {object} dto.MsgResponse
 // @Failure 400 {object} dto.MsgResponse
 // @Failure 500 {object} dto.MsgResponse
-// @Router /event/api/v1/load/producer-plugin/{id} [post]
+// @Router /event/api/v1/load/producer-plugin [post]
 func LoadPluginService(c *gin.Context) {
 	request := &dto.LoadPluginRequest{}
 	err := c.ShouldBindJSON(request)
@@ -140,7 +140,7 @@ func LoadPluginService(c *gin.Context) {
 // @Success 200 {object} dto.MsgResponse
 // @Failure 400 {object} dto.MsgResponse
 // @Failure 500 {object} dto.MsgResponse
-// @Router /event/api/v2/load/producer-plugin/{id} [post]
+// @Router /event/api/v2/load/producer-plugin [post]
 func LoadPlugin(c *gin.Context) {
 	request := &dto.LoadPluginRequest{}
 	err := c.ShouldBindJSON(request)
@@ -155,4 +155,70 @@ func LoadPlugin(c *gin.Context) {
 	}
 
 	dto.Response200Json(c, "加载事件生产者插件成功")
+}
+
+// UnloadPluginService godoc
+// @Summary 卸载所有服务的事件生产者插件
+// @Description 卸载所有服务的事件生产者插件
+// @Tags 事件生产者插件
+// @Accept  json
+// @Produce json
+// @Param id path string true "插件ID"
+// @Success 200 {object} dto.MsgResponse
+// @Failure 400 {object} dto.MsgResponse
+// @Failure 500 {object} dto.MsgResponse
+// @Router /event/api/v1/unload/producer-plugin/{id} [delete]
+func UnloadPluginService(c *gin.Context) {
+	idStr := c.Param("id")
+	if utils.IsStringEmpty(idStr) {
+		dto.Response400Json(c, errors.New("没有传递必要的参数"))
+		return
+	}
+
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	err = service.UnloadPluginService(id)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	dto.Response200Json(c, "卸载所有服务的事件生产者插件成功")
+}
+
+// UnloadPlugin godoc
+// @Summary 卸载事件生产者插件
+// @Description 卸载事件生产者插件
+// @Tags 事件生产者插件
+// @Accept  json
+// @Produce json
+// @Param id path string true "插件ID"
+// @Success 200 {object} dto.MsgResponse
+// @Failure 400 {object} dto.MsgResponse
+// @Failure 500 {object} dto.MsgResponse
+// @Router /event/api/v2/unload/producer-plugin/{id} [delete]
+func UnloadPlugin(c *gin.Context) {
+	idStr := c.Param("id")
+	if utils.IsStringEmpty(idStr) {
+		dto.Response400Json(c, errors.New("没有传递必要的参数"))
+		return
+	}
+
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	err = service.UnloadPlugin(id)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	dto.Response200Json(c, "卸载事件生产者插件成功")
 }

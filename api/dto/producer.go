@@ -11,6 +11,10 @@ type GetProducersResponse struct {
 	Producers []ProducerInfoWithID
 }
 
+type NewProducerRequest struct {
+	ID uint64 `json:"id" binding:"required"`
+}
+
 type ProducerInfo struct {
 	PluginID     uint64 `json:"pluginId" binding:"required"`
 	ProducerName string `json:"producerName" binding:"required"`
