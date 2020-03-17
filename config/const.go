@@ -1,5 +1,6 @@
 package config
 
 const (
-	HttpTimeoutSec = 10
+	HttpTimeoutSec               = 10
+	HttpServerShutdownTimeoutSec = 10
 )

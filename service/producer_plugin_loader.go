@@ -165,6 +165,7 @@ func (loader *pluginLoader) newProducer(pluginFileName string, producerName stri
 	}
 
 	loader.addProducer(producerName, producer)
+	producer.Start()
 
 	return nil
 }
@@ -187,6 +188,7 @@ func (loader *pluginLoader) destroyProducer(pluginFileName string, producerName 
 		return errors.New("没有找到对应的生产者")
 	}
 
+	producer.Stop()
 	loader.deleteProducer(producerName)
 
 	err := p.DestroyInstance(producer)

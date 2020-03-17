@@ -3,9 +3,12 @@ package producer
 import (
 	"com.fs/event-service/config"
 	"com.fs/event-service/utils"
+	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 )
@@ -27,11 +30,15 @@ func init() {
 
 type Config struct {
 	ServerUrl string `json:"serverUrl"`
+	Port      string `json:"port"`
 	Method    string `json:"method"`
 }
 
 type Producer struct {
 	config *Config
+	server *http.Server
+
+	OnHandle func(w http.ResponseWriter, r *http.Request)
 }
 
 func InitProducer(producerName string) (*Producer, error) {
@@ -67,4 +74,37 @@ func DestroyProducer(prod *Producer) {
 
 	prod.config = nil
 	prod = nil
+}
+
+func (prod *Producer) Start() {
+	http.HandleFunc(prod.config.ServerUrl, prod.handleFunc)
+
+	prod.server = &http.Server{
+		Addr:    prod.config.Port,
+		Handler: http.DefaultServeMux,
+	}
+
+	go func() {
+		err := prod.server.ListenAndServe()
+		if err != nil {
+			utils.PrintCallErr("Producer.Start", "prod.server.ListenAndServe", err)
+			return
+		}
+	}()
+}
+
+func (prod *Producer) Stop() {
+	ctx, cancel := context.WithTimeout(context.Background(), config.HttpServerShutdownTimeoutSec)
+	defer cancel()
+
+	err := prod.server.Shutdown(ctx)
+	if err != nil {
+		utils.PrintCallErr("Producer.Stop", "prod.server.Shutdown", err)
+		return
+	}
+}
+
+func (prod *Producer) handleFunc(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("handleFunc Here")
+	prod.OnHandle(w, r)
 }

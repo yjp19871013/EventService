@@ -24,4 +24,6 @@ type EventProducerFactory interface {
 }
 
 type EventProducer interface {
+	Start()
+	Stop()
 }

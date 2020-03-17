@@ -1,7 +1,7 @@
 package main
 
 import (
-	"com.fs/event-service/event-producer/http-push-producer/producer"
+	"com.fs/event-service/event-producer/http-push-producer/factory"
 )
 
-var Factory = producer.HttpPushFactory{}
+var Factory = factory.HttpPushFactory{}

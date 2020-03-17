@@ -1,4 +1,5 @@
 {
-  "serverUrl": "http://localhost:9090/index",
+  "serverUrl": "/index",
+  "port": ":9090",
   "method": "get"
 }
