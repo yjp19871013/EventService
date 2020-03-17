@@ -18,7 +18,7 @@ func init() {
 	}
 }
 
-type EventProducerPlugin interface {
+type EventProducerFactory interface {
 	NewInstance(producerName string) (EventProducer, error)
 	DestroyInstance(producer EventProducer) error
 }

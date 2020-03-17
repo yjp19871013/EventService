@@ -13,7 +13,7 @@ import (
 
 type pluginLoader struct {
 	pluginMapLock sync.Mutex
-	pluginMap     map[string]event_producer.EventProducerPlugin
+	pluginMap     map[string]event_producer.EventProducerFactory
 
 	producerMapLock sync.Mutex
 	producerMap     map[string]event_producer.EventProducer
@@ -22,7 +22,7 @@ type pluginLoader struct {
 func initPluginLoader() *pluginLoader {
 	loader := &pluginLoader{}
 
-	loader.pluginMap = make(map[string]event_producer.EventProducerPlugin)
+	loader.pluginMap = make(map[string]event_producer.EventProducerFactory)
 	loader.producerMap = make(map[string]event_producer.EventProducer)
 
 	return loader
@@ -119,13 +119,13 @@ func (loader *pluginLoader) loadProducerPlugin(pluginFileName string) error {
 		return err
 	}
 
-	s, err := p.Lookup("Plugin")
+	s, err := p.Lookup("Factory")
 	if err != nil {
 		utils.PrintCallErr("newProducer", "p.Lookup", err)
 		return err
 	}
 
-	producerPlugin, ok := s.(event_producer.EventProducerPlugin)
+	producerPlugin, ok := s.(event_producer.EventProducerFactory)
 	if !ok {
 		utils.PrintErr("newProducer", "类型转换失败")
 		return errors.New("类型转换失败")
@@ -198,7 +198,7 @@ func (loader *pluginLoader) destroyProducer(pluginFileName string, producerName 
 	return nil
 }
 
-func (loader *pluginLoader) addProducerPlugin(pluginFileName string, p event_producer.EventProducerPlugin) {
+func (loader *pluginLoader) addProducerPlugin(pluginFileName string, p event_producer.EventProducerFactory) {
 	loader.pluginMapLock.Lock()
 	defer loader.pluginMapLock.Unlock()
 
@@ -213,7 +213,7 @@ func (loader *pluginLoader) deleteProducerPlugin(pluginFileName string) {
 	delete(loader.pluginMap, pluginFileName)
 }
 
-func (loader *pluginLoader) getProducerPlugin(pluginFileName string) event_producer.EventProducerPlugin {
+func (loader *pluginLoader) getProducerPlugin(pluginFileName string) event_producer.EventProducerFactory {
 	loader.pluginMapLock.Lock()
 	defer loader.pluginMapLock.Unlock()
 
