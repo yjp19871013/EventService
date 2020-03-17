@@ -5,20 +5,15 @@ import (
 	"com.fs/event-service/event-producer/http-push-producer/producer"
 	"com.fs/event-service/utils"
 	"errors"
-	"fmt"
 )
-
-func init() {
-	fmt.Println("http push producer load")
-}
 
 type HttpPushPlugin struct {
 }
 
 var Plugin = HttpPushPlugin{}
 
-func (p *HttpPushPlugin) NewInstance(conf string) (event_producer.EventProducer, error) {
-	pushProducer, err := producer.InitProducer(conf)
+func (p *HttpPushPlugin) NewInstance(producerName string) (event_producer.EventProducer, error) {
+	pushProducer, err := producer.InitProducer(producerName)
 	if err != nil {
 		utils.PrintCallErr("HttpPushPlugin.NewInstance", "producer.InitProducer", err)
 		return nil, err

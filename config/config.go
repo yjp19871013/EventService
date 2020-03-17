@@ -18,7 +18,8 @@ type databaseConfig struct {
 }
 
 type pluginConfig struct {
-	Dir string `json:"dir"`
+	Dir               string `json:"dir"`
+	ProducerConfigDir string `json:"producerConfigDir"`
 }
 
 type servicesConfig struct {

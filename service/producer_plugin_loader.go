@@ -60,7 +60,7 @@ func (loader *pluginLoader) load() error {
 		}
 
 		for _, producer := range producers {
-			err := loader.newProducer(p.PluginFileName, producer.Name, producer.Config)
+			err := loader.newProducer(p.PluginFileName, producer.Name)
 			if err != nil {
 				utils.PrintCallErr("pluginLoader.startLoader", "loader.newProducer", err)
 				return err
@@ -140,7 +140,7 @@ func (loader *pluginLoader) unloadProducerPlugin(pluginFileName string) {
 	loader.deleteProducerPlugin(pluginFileName)
 }
 
-func (loader *pluginLoader) newProducer(pluginFileName string, producerName string, conf string) error {
+func (loader *pluginLoader) newProducer(pluginFileName string, producerName string) error {
 	if utils.IsStringEmpty(pluginFileName) || utils.IsStringEmpty(producerName) {
 		utils.PrintErr("newProducer", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
@@ -158,7 +158,7 @@ func (loader *pluginLoader) newProducer(pluginFileName string, producerName stri
 		return errors.New("没有找到对应的插件")
 	}
 
-	producer, err := p.NewInstance(conf)
+	producer, err := p.NewInstance(producerName)
 	if err != nil {
 		utils.PrintCallErr("newProducer", "p.NewInstance", err)
 		return err

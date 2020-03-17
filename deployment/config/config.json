@@ -10,7 +10,8 @@
     "schema": "event"
   },
   "plugins": {
-    "dir": "/home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/producers"
+    "dir": "/home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/plugins",
+    "producerConfigDir": "/home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/plugins/config"
   },
   "services": {
     "baseUrls": [

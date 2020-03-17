@@ -6,7 +6,6 @@ type ProducerInfo struct {
 	ID           uint64
 	PluginID     uint64
 	ProducerName string
-	Config       string
 }
 
 func TransferProducerToProducerInfo(producer *db.Producer) *ProducerInfo {
@@ -18,7 +17,6 @@ func TransferProducerToProducerInfo(producer *db.Producer) *ProducerInfo {
 		ID:           producer.ID,
 		PluginID:     producer.ProducerPluginID,
 		ProducerName: producer.Name,
-		Config:       producer.Config,
 	}
 }
 

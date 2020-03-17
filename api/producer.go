@@ -29,7 +29,7 @@ func AddProducer(c *gin.Context) {
 		return
 	}
 
-	err = service.AddProducer(request.PluginID, request.ProducerName, request.Config)
+	err = service.AddProducer(request.PluginID, request.ProducerName)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return

@@ -1,10 +1,29 @@
 package producer
 
 import (
+	"com.fs/event-service/config"
 	"com.fs/event-service/utils"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 )
+
+const (
+	producerConfigDir = "http_push"
+)
+
+func init() {
+	conf := config.GetEventServiceConfig().PluginConfig
+	configDir := filepath.Join(conf.ProducerConfigDir, producerConfigDir)
+	if !utils.PathExists(configDir) {
+		err := os.MkdirAll(configDir, os.ModePerm|os.ModeDir)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
 
 type Config struct {
 	ServerUrl string `json:"serverUrl"`
@@ -15,20 +34,28 @@ type Producer struct {
 	config *Config
 }
 
-func InitProducer(conf string) (*Producer, error) {
-	if utils.IsStringEmpty(conf) {
+func InitProducer(producerName string) (*Producer, error) {
+	if utils.IsStringEmpty(producerName) {
 		utils.PrintErr("InitProducer", "没有传递配置参数")
 		return nil, errors.New("没有传递配置参数")
 	}
 
-	config := &Config{}
-	err := json.Unmarshal([]byte(conf), config)
+	configFilePath := filepath.Join(config.GetEventServiceConfig().PluginConfig.ProducerConfigDir,
+		producerConfigDir, producerName+".json")
+	configJson, err := ioutil.ReadFile(configFilePath)
+	if err != nil {
+		utils.PrintCallErr("InitProducer", "ioutil.ReadFile", err)
+		return nil, err
+	}
+
+	conf := &Config{}
+	err = json.Unmarshal(configJson, conf)
 	if err != nil {
 		utils.PrintCallErr("InitProducer", "json.Unmarshal", err)
 		return nil, err
 	}
 
-	prod := &Producer{config: config}
+	prod := &Producer{config: conf}
 
 	return prod, nil
 }

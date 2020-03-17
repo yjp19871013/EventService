@@ -8,9 +8,8 @@ import (
 )
 
 type Producer struct {
-	ID     uint64 `gorm:"primary_key;"`
-	Name   string `gorm:"not null;type:varchar(256);"`
-	Config string `gorm:"not null;type:mediumtext"`
+	ID   uint64 `gorm:"primary_key;"`
+	Name string `gorm:"not null;type:varchar(256);"`
 
 	ProducerPluginID uint64
 	Consumers        []Consumer

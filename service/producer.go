@@ -14,7 +14,7 @@ import (
 	"strconv"
 )
 
-func AddProducer(pluginID uint64, producerName string, conf string) error {
+func AddProducer(pluginID uint64, producerName string) error {
 	if pluginID == 0 || utils.IsStringEmpty(producerName) {
 		utils.PrintErr("AddProducer", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
@@ -29,7 +29,6 @@ func AddProducer(pluginID uint64, producerName string, conf string) error {
 
 	producer := &db.Producer{
 		Name:             producerName,
-		Config:           conf,
 		ProducerPluginID: p.ID,
 	}
 
@@ -210,7 +209,7 @@ func NewProducer(producerID uint64) error {
 		return err
 	}
 
-	err = loader.newProducer(p.PluginFileName, producer.Name, producer.Config)
+	err = loader.newProducer(p.PluginFileName, producer.Name)
 	if err != nil {
 		utils.PrintCallErr("NewProducer", "loader.newProducer", err)
 		return err
