@@ -1,14 +1,12 @@
-package producer
+package base
 
 import (
 	"com.fs/event-service/config"
+	"com.fs/event-service/event-producer"
 	"com.fs/event-service/utils"
-	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 )
@@ -34,14 +32,12 @@ type Config struct {
 	Method    string `json:"method"`
 }
 
-type Producer struct {
-	config *Config
-	server *http.Server
-
-	OnHandle func(w http.ResponseWriter, r *http.Request)
+type HttpPushFactory struct {
+	InitProducer    func(conf *Config) (event_producer.EventProducer, error)
+	DestroyProducer func(prod event_producer.EventProducer) error
 }
 
-func InitProducer(producerName string) (*Producer, error) {
+func (factory *HttpPushFactory) NewInstance(producerName string) (event_producer.EventProducer, error) {
 	if utils.IsStringEmpty(producerName) {
 		utils.PrintErr("InitProducer", "没有传递配置参数")
 		return nil, errors.New("没有传递配置参数")
@@ -62,49 +58,20 @@ func InitProducer(producerName string) (*Producer, error) {
 		return nil, err
 	}
 
-	prod := &Producer{config: conf}
-
-	return prod, nil
-}
-
-func DestroyProducer(prod *Producer) {
-	if prod == nil {
-		return
-	}
-
-	prod.config = nil
-	prod = nil
-}
-
-func (prod *Producer) Start() {
-	http.HandleFunc(prod.config.ServerUrl, prod.handleFunc)
-
-	prod.server = &http.Server{
-		Addr:    prod.config.Port,
-		Handler: http.DefaultServeMux,
-	}
-
-	go func() {
-		err := prod.server.ListenAndServe()
-		if err != nil {
-			utils.PrintCallErr("Producer.Start", "prod.server.ListenAndServe", err)
-			return
-		}
-	}()
-}
-
-func (prod *Producer) Stop() {
-	ctx, cancel := context.WithTimeout(context.Background(), config.HttpServerShutdownTimeoutSec)
-	defer cancel()
-
-	err := prod.server.Shutdown(ctx)
+	pushProducer, err := factory.InitProducer(conf)
 	if err != nil {
-		utils.PrintCallErr("Producer.Stop", "prod.server.Shutdown", err)
-		return
+		utils.PrintCallErr("HttpPushFactory.NewInstance", "producer.InitProducer", err)
+		return nil, err
 	}
+
+	return pushProducer, nil
 }
 
-func (prod *Producer) handleFunc(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("handleFunc Here")
-	prod.OnHandle(w, r)
+func (factory *HttpPushFactory) DestroyInstance(prod event_producer.EventProducer) error {
+	if prod == nil {
+		utils.PrintErr("HttpPushFactory.DestroyInstance", "传递的生产者为nil")
+		return errors.New("传递的生产者为nil")
+	}
+
+	return factory.DestroyProducer(prod)
 }
