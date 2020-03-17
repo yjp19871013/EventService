@@ -15,6 +15,21 @@ type NewProducerRequest struct {
 	ID uint64 `json:"id" binding:"required"`
 }
 
+type GetCreatedProducersResponse struct {
+	MsgResponse
+	ProducerNames []string
+}
+
+type GetCreatedProducersServiceResponse struct {
+	MsgResponse
+	ServiceProducers []ServiceProducers
+}
+
+type ServiceProducers struct {
+	BaseUrl       string `json:"baseUrl" binding:"required"`
+	ProducerNames []string
+}
+
 type ProducerInfo struct {
 	PluginID     uint64 `json:"pluginId" binding:"required"`
 	ProducerName string `json:"producerName" binding:"required"`

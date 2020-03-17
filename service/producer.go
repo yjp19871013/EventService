@@ -147,7 +147,7 @@ func NewProducerService(producerID uint64) error {
 
 	conf := config.GetEventServiceConfig().ServicesConfig
 	for _, baseUrl := range conf.BaseUrls {
-		url := baseUrl + "/api/v2/api/v2/new/producer"
+		url := baseUrl + "/api/v2/new/producer"
 		request := dto.NewProducerRequest{ID: producerID}
 		requestJson, err := json.Marshal(request)
 		if err != nil {
@@ -216,4 +216,51 @@ func NewProducer(producerID uint64) error {
 	}
 
 	return nil
+}
+
+func GetCreatedProducersService() (map[string][]string, error) {
+	retMap := make(map[string][]string)
+
+	conf := config.GetEventServiceConfig().ServicesConfig
+	for _, baseUrl := range conf.BaseUrls {
+		url := baseUrl + "/api/v2/created/producers"
+
+		client := http_client.NewHttpClient(config.HttpTimeoutSec)
+		response, err := client.Get(url)
+		if err != nil {
+			utils.PrintCallErr("GetCreatedProducersService", "client.Get", err)
+			return nil, err
+		}
+
+		if response.StatusCode != http.StatusOK {
+			utils.PrintErr("GetCreatedProducersService", baseUrl+": 响应失败")
+			return nil, errors.New(baseUrl + ": 响应失败")
+		}
+
+		responseByte, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			utils.PrintCallErr("GetCreatedProducersService", "ioutil.ReadAll", err)
+			return nil, err
+		}
+
+		createdProducersResponse := &dto.GetCreatedProducersResponse{}
+		err = json.Unmarshal(responseByte, createdProducersResponse)
+		if err != nil {
+			utils.PrintCallErr("GetCreatedProducersService", "json.Unmarshal", err)
+			return nil, err
+		}
+
+		if !createdProducersResponse.Success {
+			utils.PrintErr("GetCreatedProducersService", createdProducersResponse.Msg)
+			return nil, errors.New(createdProducersResponse.Msg)
+		}
+
+		retMap[baseUrl] = createdProducersResponse.ProducerNames
+	}
+
+	return retMap, nil
+}
+
+func GetCreatedProducers() []string {
+	return loader.getAllProducers()
 }

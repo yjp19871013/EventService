@@ -245,3 +245,15 @@ func (loader *pluginLoader) deleteProducer(producerName string) {
 	loader.producerMap[producerName] = nil
 	delete(loader.producerMap, producerName)
 }
+
+func (loader *pluginLoader) getAllProducers() []string {
+	loader.producerMapLock.Lock()
+	defer loader.producerMapLock.Unlock()
+
+	producerNames := make([]string, 0)
+	for producerName, _ := range loader.producerMap {
+		producerNames = append(producerNames, producerName)
+	}
+
+	return producerNames
+}

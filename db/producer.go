@@ -10,7 +10,7 @@ import (
 type Producer struct {
 	ID     uint64 `gorm:"primary_key;"`
 	Name   string `gorm:"not null;type:varchar(256);"`
-	Config string `gorm:"not null;type:varchar(10240)"`
+	Config string `gorm:"not null;type:mediumtext"`
 
 	ProducerPluginID uint64
 	Consumers        []Consumer

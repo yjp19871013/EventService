@@ -203,3 +203,56 @@ func NewProducer(c *gin.Context) {
 
 	dto.Response200Json(c, "创建生产者成功")
 }
+
+// GetCreatedProducersService godoc
+// @Summary 获取所有服务已创建的事件生产者
+// @Description 获取所有服务已创建的事件生产者
+// @Tags 事件生产者
+// @Accept  json
+// @Produce json
+// @Success 200 {object} dto.GetCreatedProducersServiceResponse
+// @Failure 400 {object} dto.GetCreatedProducersServiceResponse
+// @Failure 500 {object} dto.GetCreatedProducersServiceResponse
+// @Router /event/api/v1/created/producers [get]
+func GetCreatedProducersService(c *gin.Context) {
+	createdProducersMap, err := service.GetCreatedProducersService()
+	if err != nil {
+		c.JSON(http.StatusOK, dto.GetCreatedProducersServiceResponse{
+			MsgResponse:      dto.FormFailureMsgResponse("获取所有服务已创建的事件生产者失败", err),
+			ServiceProducers: make([]dto.ServiceProducers, 0),
+		})
+		return
+	}
+
+	ret := make([]dto.ServiceProducers, 0)
+	for baseUrl, producerNames := range createdProducersMap {
+		serviceProducers := dto.ServiceProducers{
+			BaseUrl:       baseUrl,
+			ProducerNames: producerNames,
+		}
+
+		ret = append(ret, serviceProducers)
+	}
+
+	c.JSON(http.StatusOK, dto.GetCreatedProducersServiceResponse{
+		MsgResponse:      dto.FormSuccessMsgResponse("获取所有服务已创建的事件生产者成功"),
+		ServiceProducers: ret,
+	})
+}
+
+// GetCreatedProducers godoc
+// @Summary 获取已创建的事件生产者
+// @Description 获取已创建的事件生产者
+// @Tags 事件生产者
+// @Accept  json
+// @Produce json
+// @Success 200 {object} dto.GetCreatedProducersResponse
+// @Failure 400 {object} dto.GetCreatedProducersResponse
+// @Failure 500 {object} dto.GetCreatedProducersResponse
+// @Router /event/api/v2/created/producers [get]
+func GetCreatedProducers(c *gin.Context) {
+	c.JSON(http.StatusOK, dto.GetCreatedProducersResponse{
+		MsgResponse:   dto.FormSuccessMsgResponse("获取已创建的事件生产者成功"),
+		ProducerNames: service.GetCreatedProducers(),
+	})
+}
