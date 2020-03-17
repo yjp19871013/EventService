@@ -8,6 +8,7 @@ import (
 var (
 	v1PostRouter = map[string]gin.HandlerFunc{
 		"/load/producer-plugin": api.LoadPluginService,
+		"/new/producer":         api.NewProducerService,
 
 		"/add/producer-plugin": api.AddProducerPlugin,
 		"/add/producer":        api.AddProducer,

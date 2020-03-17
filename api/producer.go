@@ -160,7 +160,20 @@ func GetProducers(c *gin.Context) {
 // @Failure 500 {object} dto.MsgResponse
 // @Router /event/api/v1/new/producer [post]
 func NewProducerService(c *gin.Context) {
+	request := &dto.NewProducerRequest{}
+	err := c.ShouldBindJSON(request)
+	if err != nil {
+		dto.Response400Json(c, err)
+		return
+	}
 
+	err = service.NewProducerService(request.ID)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	dto.Response200Json(c, "创建生产者成功")
 }
 
 // NewProducer godoc
@@ -175,5 +188,18 @@ func NewProducerService(c *gin.Context) {
 // @Failure 500 {object} dto.MsgResponse
 // @Router /event/api/v2/new/producer [post]
 func NewProducer(c *gin.Context) {
+	request := &dto.NewProducerRequest{}
+	err := c.ShouldBindJSON(request)
+	if err != nil {
+		dto.Response400Json(c, err)
+		return
+	}
 
+	err = service.NewProducer(request.ID)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	dto.Response200Json(c, "创建生产者成功")
 }
