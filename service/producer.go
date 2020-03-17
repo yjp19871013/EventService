@@ -11,6 +11,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 func AddProducer(pluginID uint64, producerName string, conf string) error {
@@ -212,6 +213,81 @@ func NewProducer(producerID uint64) error {
 	err = loader.newProducer(p.PluginFileName, producer.Name, producer.Config)
 	if err != nil {
 		utils.PrintCallErr("NewProducer", "loader.newProducer", err)
+		return err
+	}
+
+	return nil
+}
+
+func DestroyProducerService(producerID uint64) error {
+	if producerID == 0 {
+		utils.PrintErr("DestroyProducer", "没有传递必要的参数")
+		return errors.New("没有传递必要的参数")
+	}
+
+	producerIDStr := strconv.FormatUint(producerID, 10)
+
+	conf := config.GetEventServiceConfig().ServicesConfig
+	for _, baseUrl := range conf.BaseUrls {
+		url := baseUrl + "/api/v2/destroy/producer/" + producerIDStr
+
+		client := http_client.NewHttpClient(config.HttpTimeoutSec)
+		response, err := client.Delete(url, "application/json")
+		if err != nil {
+			utils.PrintCallErr("DestroyProducerService", "client.Delete", err)
+			return err
+		}
+
+		if response.StatusCode != http.StatusOK {
+			utils.PrintErr("DestroyProducerService", baseUrl+": 响应失败")
+			return errors.New(baseUrl + ": 响应失败")
+		}
+
+		responseByte, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			utils.PrintCallErr("DestroyProducerService", "ioutil.ReadAll", err)
+			return err
+		}
+
+		destroyProducerResponse := &dto.MsgResponse{}
+		err = json.Unmarshal(responseByte, destroyProducerResponse)
+		if err != nil {
+			utils.PrintCallErr("DestroyProducerService", "json.Unmarshal", err)
+			return err
+		}
+
+		if !destroyProducerResponse.Success {
+			utils.PrintErr("DestroyProducerService", destroyProducerResponse.Msg)
+			return errors.New(destroyProducerResponse.Msg)
+		}
+	}
+
+	return nil
+}
+
+func DestroyProducer(producerID uint64) error {
+	if producerID == 0 {
+		utils.PrintErr("DestroyProducer", "没有传递必要的参数")
+		return errors.New("没有传递必要的参数")
+	}
+
+	producer := &db.Producer{ID: producerID}
+	err := producer.GetByID()
+	if err != nil {
+		utils.PrintCallErr("DestroyProducer", "producer.GetByID", err)
+		return err
+	}
+
+	p := &db.ProducerPlugin{ID: producer.ProducerPluginID}
+	err = p.GetByID()
+	if err != nil {
+		utils.PrintCallErr("DestroyProducer", "p.GetByID", err)
+		return err
+	}
+
+	err = loader.destroyProducer(p.PluginFileName, producer.Name)
+	if err != nil {
+		utils.PrintCallErr("DestroyProducer", "loader.destroyProducer", err)
 		return err
 	}
 

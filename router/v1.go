@@ -17,6 +17,7 @@ var (
 
 	v1DeleteRouter = map[string]gin.HandlerFunc{
 		"/unload/producer-plugin/:id": api.UnloadPluginService,
+		"/destroy/producer/:id":       api.DestroyProducerService,
 
 		"/delete/producer-plugin/:id": api.DeleteProducerPlugin,
 		"/delete/producer/:id":        api.DeleteProducer,

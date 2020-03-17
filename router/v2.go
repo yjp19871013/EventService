@@ -13,6 +13,7 @@ var (
 
 	v2DeleteRouter = map[string]gin.HandlerFunc{
 		"/unload/producer-plugin/:id": api.UnloadPlugin,
+		"/destroy/producer/:id":       api.DestroyProducer,
 	}
 
 	v2PutRouter = map[string]gin.HandlerFunc{}

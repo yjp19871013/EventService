@@ -204,6 +204,72 @@ func NewProducer(c *gin.Context) {
 	dto.Response200Json(c, "创建生产者成功")
 }
 
+// DestroyProducerService godoc
+// @Summary 销毁所有服务的事件生产者
+// @Description 销毁所有服务的事件生产者
+// @Tags 事件生产者
+// @Accept  json
+// @Produce json
+// @Param id path string true "生产者ID"
+// @Success 200 {object} dto.MsgResponse
+// @Failure 400 {object} dto.MsgResponse
+// @Failure 500 {object} dto.MsgResponse
+// @Router /event/api/v1/destroy/producer/{id} [delete]
+func DestroyProducerService(c *gin.Context) {
+	idStr := c.Param("id")
+	if utils.IsStringEmpty(idStr) {
+		dto.Response400Json(c, errors.New("没有传递ID"))
+		return
+	}
+
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	err = service.DestroyProducerService(id)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	dto.Response200Json(c, "销毁所有服务的事件生产者成功")
+}
+
+// DestroyProducer godoc
+// @Summary 销毁事件生产者
+// @Description 销毁事件生产者
+// @Tags 事件生产者
+// @Accept  json
+// @Produce json
+// @Param id path string true "生产者ID"
+// @Success 200 {object} dto.MsgResponse
+// @Failure 400 {object} dto.MsgResponse
+// @Failure 500 {object} dto.MsgResponse
+// @Router /event/api/v2/destroy/producer/{id} [delete]
+func DestroyProducer(c *gin.Context) {
+	idStr := c.Param("id")
+	if utils.IsStringEmpty(idStr) {
+		dto.Response400Json(c, errors.New("没有传递ID"))
+		return
+	}
+
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	err = service.DestroyProducer(id)
+	if err != nil {
+		dto.Response200FailJson(c, err)
+		return
+	}
+
+	dto.Response200Json(c, "销毁事件生产者成功")
+}
+
 // GetCreatedProducersService godoc
 // @Summary 获取所有服务已创建的事件生产者
 // @Description 获取所有服务已创建的事件生产者
