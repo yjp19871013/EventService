@@ -222,3 +222,56 @@ func UnloadPlugin(c *gin.Context) {
 
 	dto.Response200Json(c, "卸载事件生产者插件成功")
 }
+
+// GetLoadedPluginsService godoc
+// @Summary 获取所有服务已加载的事件生产者插件
+// @Description 获取所有服务已加载的事件生产者插件
+// @Tags 事件生产者插件
+// @Accept  json
+// @Produce json
+// @Success 200 {object} dto.GetLoadedPluginsServiceResponse
+// @Failure 400 {object} dto.GetLoadedPluginsServiceResponse
+// @Failure 500 {object} dto.GetLoadedPluginsServiceResponse
+// @Router /event/api/v1/loaded/producer-plugins [get]
+func GetLoadedPluginsService(c *gin.Context) {
+	responseMap, err := service.GetLoadedPluginsService()
+	if err != nil {
+		c.JSON(http.StatusOK, dto.GetLoadedPluginsServiceResponse{
+			MsgResponse:          dto.FormFailureMsgResponse("获取所有服务已加载的事件生产者插件失败", err),
+			ServiceLoadedPlugins: make([]dto.ServiceLoadedPlugins, 0),
+		})
+		return
+	}
+
+	ret := make([]dto.ServiceLoadedPlugins, 0)
+	for baseUrl, pluginFileNames := range responseMap {
+		serviceLoadedPlugins := dto.ServiceLoadedPlugins{
+			BaseUrl:         baseUrl,
+			PluginFileNames: pluginFileNames,
+		}
+
+		ret = append(ret, serviceLoadedPlugins)
+	}
+
+	c.JSON(http.StatusOK, dto.GetLoadedPluginsServiceResponse{
+		MsgResponse:          dto.FormSuccessMsgResponse("获取所有服务已加载的事件生产者插件成功"),
+		ServiceLoadedPlugins: ret,
+	})
+}
+
+// GetLoadedPlugins godoc
+// @Summary 获取已加载的事件生产者插件
+// @Description 获取已加载的事件生产者插件
+// @Tags 事件生产者插件
+// @Accept  json
+// @Produce json
+// @Success 200 {object} dto.GetLoadedPluginsResponse
+// @Failure 400 {object} dto.GetLoadedPluginsResponse
+// @Failure 500 {object} dto.GetLoadedPluginsResponse
+// @Router /event/api/v2/loaded/producer-plugins [get]
+func GetLoadedPlugins(c *gin.Context) {
+	c.JSON(http.StatusOK, dto.GetLoadedPluginsResponse{
+		MsgResponse:     dto.FormSuccessMsgResponse("获取已加载的事件生产者插件成功"),
+		PluginFileNames: service.GetLoadedPlugins(),
+	})
+}

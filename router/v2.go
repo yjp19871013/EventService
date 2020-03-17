@@ -16,7 +16,9 @@ var (
 
 	v2PutRouter = map[string]gin.HandlerFunc{}
 
-	v2GetRouter = map[string]gin.HandlerFunc{}
+	v2GetRouter = map[string]gin.HandlerFunc{
+		"/loaded/producer-plugins": api.GetLoadedPlugins,
+	}
 )
 
 func initV2Router(r *gin.Engine) {

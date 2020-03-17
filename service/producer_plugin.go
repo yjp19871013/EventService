@@ -206,3 +206,50 @@ func UnloadPlugin(pluginID uint64) error {
 
 	return nil
 }
+
+func GetLoadedPluginsService() (map[string][]string, error) {
+	retMap := make(map[string][]string)
+
+	conf := config.GetEventServiceConfig().ServicesConfig
+	for _, baseUrl := range conf.BaseUrls {
+		url := baseUrl + "/api/v2/loaded/producer-plugins"
+
+		client := http_client.NewHttpClient(config.HttpTimeoutSec)
+		response, err := client.Get(url)
+		if err != nil {
+			utils.PrintCallErr("GetLoadedPluginsService", "client.Get", err)
+			return nil, err
+		}
+
+		if response.StatusCode != http.StatusOK {
+			utils.PrintErr("GetLoadedPluginsService", baseUrl+": 响应失败")
+			return nil, errors.New(baseUrl + ": 响应失败")
+		}
+
+		responseByte, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			utils.PrintCallErr("GetLoadedPluginsService", "ioutil.ReadAll", err)
+			return nil, err
+		}
+
+		loadedPluginResponse := &dto.GetLoadedPluginsResponse{}
+		err = json.Unmarshal(responseByte, loadedPluginResponse)
+		if err != nil {
+			utils.PrintCallErr("GetLoadedPluginsService", "json.Unmarshal", err)
+			return nil, err
+		}
+
+		if !loadedPluginResponse.Success {
+			utils.PrintErr("GetLoadedPluginsService", loadedPluginResponse.Msg)
+			return nil, errors.New(loadedPluginResponse.Msg)
+		}
+
+		retMap[baseUrl] = loadedPluginResponse.PluginFileNames
+	}
+
+	return retMap, nil
+}
+
+func GetLoadedPlugins() []string {
+	return loader.getAllProducerPlugins()
+}

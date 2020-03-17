@@ -212,6 +212,18 @@ func (loader *pluginLoader) getProducerPlugin(pluginFileName string) event_produ
 	return loader.pluginMap[pluginFileName]
 }
 
+func (loader *pluginLoader) getAllProducerPlugins() []string {
+	loader.pluginMapLock.Lock()
+	defer loader.pluginMapLock.Unlock()
+
+	plugins := make([]string, 0)
+	for pluginFileName, _ := range loader.pluginMap {
+		plugins = append(plugins, pluginFileName)
+	}
+
+	return plugins
+}
+
 func (loader *pluginLoader) addProducer(producerName string, producer event_producer.EventProducer) {
 	loader.producerMapLock.Lock()
 	defer loader.producerMapLock.Unlock()

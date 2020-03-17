@@ -45,6 +45,15 @@ func (client *HTTPClient) Post(url string, request string, contentType string) (
 	return client.httpClient.Do(req)
 }
 
+func (client *HTTPClient) Get(url string) (*http.Response, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client.httpClient.Do(req)
+}
+
 func (client *HTTPClient) Delete(url string, contentType string) (*http.Response, error) {
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
