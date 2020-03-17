@@ -158,7 +158,11 @@ func (loader *pluginLoader) newProducer(pluginFileName string, producerName stri
 		return errors.New("没有找到对应的插件")
 	}
 
-	producer = p.NewInstance(conf)
+	producer, err := p.NewInstance(conf)
+	if err != nil {
+		utils.PrintCallErr("newProducer", "p.NewInstance", err)
+		return err
+	}
 
 	loader.addProducer(producerName, producer)
 
@@ -185,7 +189,11 @@ func (loader *pluginLoader) destroyProducer(pluginFileName string, producerName 
 
 	loader.deleteProducer(producerName)
 
-	p.DestroyInstance(producer)
+	err := p.DestroyInstance(producer)
+	if err != nil {
+		utils.PrintCallErr("destroyProducer", "p.DestroyInstance", err)
+		return err
+	}
 
 	return nil
 }
