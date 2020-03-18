@@ -6,7 +6,9 @@ import (
 	"com.fs/event-service/event-producer/http-pull-producer/base"
 	"com.fs/event-service/http_client"
 	"com.fs/event-service/utils"
+	"errors"
 	"io/ioutil"
+	"net/http"
 )
 
 type HttpPullProducer struct {
@@ -19,6 +21,11 @@ func (prod *HttpPullProducer) onPull() error {
 	if err != nil {
 		utils.PrintCallErr("fs_relay onPull", "client.Get", err)
 		return err
+	}
+
+	if response.StatusCode != http.StatusOK {
+		utils.PrintErr("fs_relay onPull", "响应失败")
+		return errors.New("响应失败")
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
