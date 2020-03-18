@@ -29,6 +29,7 @@ func init() {
 type Config struct {
 	PullUrl       string `json:"pullUrl"`
 	PullPeriodSec uint64 `json:"pullPeriodSec"`
+	PullTimeout   uint64 `json:"pullTimeout"`
 }
 
 type HttpPullFactory struct {

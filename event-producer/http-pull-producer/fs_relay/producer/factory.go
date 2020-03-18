@@ -2,46 +2,46 @@ package producer
 
 import (
 	"com.fs/event-service/event-producer"
-	"com.fs/event-service/event-producer/http-push-producer/base"
+	"com.fs/event-service/event-producer/http-pull-producer/base"
 	"com.fs/event-service/utils"
 	"errors"
 )
 
-type HttpPushFactory struct {
-	base.HttpPushFactory
+type HttpPullFactory struct {
+	base.HttpPullFactory
 }
 
 func InitProducer(producerName string, conf *base.Config) (event_producer.EventProducer, error) {
 	if utils.IsStringEmpty(producerName) || conf == nil {
-		utils.PrintErr("HttpPushFactory.InitProducer", "没有传递配置参数")
+		utils.PrintErr("HttpPullFactory.InitProducer", "没有传递配置参数")
 		return nil, errors.New("没有传递配置参数")
 	}
 
-	prod := &HttpPushProducer{}
+	prod := &HttpPullProducer{}
 	prod.ProducerName = producerName
 	prod.Config = conf
-	prod.OnHandle = prod.handlerFun
+	prod.Pull = prod.onPull
 
 	return prod, nil
 }
 
 func DestroyProducer(prod event_producer.EventProducer) error {
 	if prod == nil {
-		utils.PrintErr("HttpPushFactory.DestroyProducer", "没有传递必要的参数")
+		utils.PrintErr("HttpPullFactory.DestroyProducer", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	pushProducer, ok := prod.(*HttpPushProducer)
+	pullProducer, ok := prod.(*HttpPullProducer)
 	if !ok {
-		utils.PrintErr("HttpPushFactory.DestroyProducer", "类型转换失败")
+		utils.PrintErr("HttpPullFactory.DestroyProducer", "类型转换失败")
 		return errors.New("类型转换失败")
 	}
 
-	pushProducer.OnHandle = nil
-	pushProducer.Config = nil
-	pushProducer.ProducerName = ""
+	pullProducer.Pull = nil
+	pullProducer.Config = nil
+	pullProducer.ProducerName = ""
 
-	pushProducer = nil
+	pullProducer = nil
 
 	return nil
 }

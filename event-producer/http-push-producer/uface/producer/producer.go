@@ -19,7 +19,7 @@ type HttpPushProducer struct {
 	base.Producer
 }
 
-func (producer *HttpPushProducer) HandlerFun(w http.ResponseWriter, r *http.Request) {
+func (producer *HttpPushProducer) handlerFun(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		utils.PrintCallErr("uface HandlerFun", "ioutil.ReadAll", err)

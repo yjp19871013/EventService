@@ -10,7 +10,7 @@ type Producer struct {
 	ProducerName string
 	Config       *Config
 
-	OnPull func() error
+	Pull func() error
 
 	stopChan chan bool
 }
@@ -26,7 +26,7 @@ func (prod *Producer) Start() error {
 		return errors.New("没有传递配置")
 	}
 
-	if prod.OnPull == nil {
+	if prod.Pull == nil {
 		utils.PrintErr("Producer.Start", "没有创建OnPull")
 		return errors.New("没有创建OnPull")
 	}
@@ -39,7 +39,7 @@ func (prod *Producer) Start() error {
 
 	prod.stopChan = make(chan bool)
 
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(time.Duration(prod.Config.PullPeriodSec) * time.Second)
 	go func(p *Producer, ticker *time.Ticker) {
 		defer ticker.Stop()
 
@@ -65,5 +65,5 @@ func (prod *Producer) Stop() error {
 }
 
 func (prod *Producer) pull() error {
-	return prod.OnPull()
+	return prod.Pull()
 }
