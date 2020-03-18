@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
 const (
@@ -33,6 +34,8 @@ type Config struct {
 }
 
 type HttpPullFactory struct {
+	sync.Mutex
+
 	InitProducer    func(producerName string, conf *Config) (event_producer.EventProducer, error)
 	DestroyProducer func(prod event_producer.EventProducer) error
 }
@@ -58,9 +61,9 @@ func (factory *HttpPullFactory) NewInstance(producerName string) (event_producer
 		return nil, err
 	}
 
-	pushProducer, err := factory.InitProducer(producerName, conf)
+	pushProducer, err := factory.initProducerWithLock(producerName, conf)
 	if err != nil {
-		utils.PrintCallErr("HttpPullFactory.NewInstance", "producer.InitProducer", err)
+		utils.PrintCallErr("HttpPullFactory.NewInstance", "producer.initProducerWithLock", err)
 		return nil, err
 	}
 
@@ -72,6 +75,21 @@ func (factory *HttpPullFactory) DestroyInstance(prod event_producer.EventProduce
 		utils.PrintErr("HttpPullFactory.DestroyInstance", "传递的生产者为nil")
 		return errors.New("传递的生产者为nil")
 	}
+
+	return factory.destroyProducerWithLock(prod)
+}
+
+func (factory *HttpPullFactory) initProducerWithLock(
+	producerName string, conf *Config) (event_producer.EventProducer, error) {
+	factory.Lock()
+	defer factory.Unlock()
+
+	return factory.InitProducer(producerName, conf)
+}
+
+func (factory *HttpPullFactory) destroyProducerWithLock(prod event_producer.EventProducer) error {
+	factory.Lock()
+	defer factory.Unlock()
 
 	return factory.DestroyProducer(prod)
 }
