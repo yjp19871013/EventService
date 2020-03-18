@@ -33,7 +33,7 @@ type Config struct {
 }
 
 type HttpPushFactory struct {
-	InitProducer    func(conf *Config) (event_producer.EventProducer, error)
+	InitProducer    func(producerName string, conf *Config) (event_producer.EventProducer, error)
 	DestroyProducer func(prod event_producer.EventProducer) error
 }
 
@@ -58,7 +58,7 @@ func (factory *HttpPushFactory) NewInstance(producerName string) (event_producer
 		return nil, err
 	}
 
-	pushProducer, err := factory.InitProducer(conf)
+	pushProducer, err := factory.InitProducer(producerName, conf)
 	if err != nil {
 		utils.PrintCallErr("HttpPushFactory.NewInstance", "producer.InitProducer", err)
 		return nil, err

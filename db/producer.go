@@ -68,6 +68,26 @@ func (producer *Producer) GetByID() error {
 	return nil
 }
 
+func (producer *Producer) GetByName() error {
+	if utils.IsStringEmpty(producer.Name) {
+		utils.PrintErr("Producer.GetByName", "没有传递必要的参数")
+		return errors.New("没有传递必要的参数")
+	}
+
+	err := getInstance().Where("name = ?", producer.Name).First(producer).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			utils.PrintErr("Producer.GetByName", "生产者不存在")
+			return errors.New("生产者不存在")
+		}
+
+		utils.PrintErr("Producer.GetByName", "Find producer")
+		return errors.New("没有传递必要的参数")
+	}
+
+	return nil
+}
+
 func (producer *Producer) DeleteByID() error {
 	if producer.ID == 0 {
 		utils.PrintErr("Producer.DeleteByID", "没有传递必要的参数")

@@ -1,5 +1,5 @@
 {
-  "serverUrl": "/index",
-  "port": ":9090",
-  "method": "get"
+  "serverUrl": "/uface/push",
+  "port": ":8888",
+  "method": "post"
 }

@@ -8,8 +8,9 @@ import (
 )
 
 type Producer struct {
-	Config *Config
-	server *http.Server
+	ProducerName string
+	Config       *Config
+	server       *http.Server
 
 	OnHandle func(w http.ResponseWriter, r *http.Request)
 }
