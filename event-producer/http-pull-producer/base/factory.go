@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	producerConfigDir = "http_push"
+	producerConfigDir = "http_pull"
 )
 
 func init() {
@@ -27,19 +27,18 @@ func init() {
 }
 
 type Config struct {
-	ServerUrl string `json:"serverUrl"`
-	Port      string `json:"port"`
-	Method    string `json:"method"`
+	PullUrl       string `json:"pullUrl"`
+	PullPeriodSec uint64 `json:"pullPeriodSec"`
 }
 
-type HttpPushFactory struct {
+type HttpPullFactory struct {
 	InitProducer    func(producerName string, conf *Config) (event_producer.EventProducer, error)
 	DestroyProducer func(prod event_producer.EventProducer) error
 }
 
-func (factory *HttpPushFactory) NewInstance(producerName string) (event_producer.EventProducer, error) {
+func (factory *HttpPullFactory) NewInstance(producerName string) (event_producer.EventProducer, error) {
 	if utils.IsStringEmpty(producerName) {
-		utils.PrintErr("HttpPushFactory.NewInstance", "没有传递配置参数")
+		utils.PrintErr("HttpPullFactory.NewInstance", "没有传递配置参数")
 		return nil, errors.New("没有传递配置参数")
 	}
 
@@ -47,29 +46,29 @@ func (factory *HttpPushFactory) NewInstance(producerName string) (event_producer
 		producerConfigDir, producerName+".json")
 	configJson, err := ioutil.ReadFile(configFilePath)
 	if err != nil {
-		utils.PrintCallErr("HttpPushFactory.NewInstance", "ioutil.ReadFile", err)
+		utils.PrintCallErr("HttpPullFactory.NewInstance", "ioutil.ReadFile", err)
 		return nil, err
 	}
 
 	conf := &Config{}
 	err = json.Unmarshal(configJson, conf)
 	if err != nil {
-		utils.PrintCallErr("HttpPushFactory.NewInstance", "json.Unmarshal", err)
+		utils.PrintCallErr("HttpPullFactory.NewInstance", "json.Unmarshal", err)
 		return nil, err
 	}
 
 	pushProducer, err := factory.InitProducer(producerName, conf)
 	if err != nil {
-		utils.PrintCallErr("HttpPushFactory.NewInstance", "producer.InitProducer", err)
+		utils.PrintCallErr("HttpPullFactory.NewInstance", "producer.InitProducer", err)
 		return nil, err
 	}
 
 	return pushProducer, nil
 }
 
-func (factory *HttpPushFactory) DestroyInstance(prod event_producer.EventProducer) error {
+func (factory *HttpPullFactory) DestroyInstance(prod event_producer.EventProducer) error {
 	if prod == nil {
-		utils.PrintErr("HttpPushFactory.DestroyInstance", "传递的生产者为nil")
+		utils.PrintErr("HttpPullFactory.DestroyInstance", "传递的生产者为nil")
 		return errors.New("传递的生产者为nil")
 	}
 
