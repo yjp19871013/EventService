@@ -45,7 +45,7 @@ func FormProducerPluginInfo(p *model.ProducerPluginInfo) *ProducerPluginInfo {
 		return &ProducerPluginInfo{}
 	}
 
-	return &ProducerPluginInfo{PluginName: p.PluginName}
+	return &ProducerPluginInfo{PluginName: p.PluginName, PluginFileName: p.PluginFileName}
 }
 
 func FormProducerPluginInfoBatch(ps []model.ProducerPluginInfo) []ProducerPluginInfo {

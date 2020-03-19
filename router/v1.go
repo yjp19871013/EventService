@@ -27,13 +27,13 @@ var (
 	v1PutRouter = map[string]gin.HandlerFunc{}
 
 	v1GetRouter = map[string]gin.HandlerFunc{
-		"/loaded/producer-plugins":              api.GetLoadedPluginsService,
-		"/created/producers":                    api.GetCreatedProducersService,
-		"/producer-plugins":                     api.GetProducerPlugins,
-		"/producer-plugins/:pluginId/producers": api.GetPluginProducers,
-		"/producers":                            api.GetProducers,
-		"/producer/:producerId/consumers":       api.GetProducerConsumers,
-		"/consumers":                            api.GetConsumers,
+		"/loaded/producer-plugins":             api.GetLoadedPluginsService,
+		"/created/producers":                   api.GetCreatedProducersService,
+		"/producer-plugins":                    api.GetProducerPlugins,
+		"/producer-plugin/:pluginId/producers": api.GetPluginProducers,
+		"/producers":                           api.GetProducers,
+		"/producer/:producerId/consumers":      api.GetProducerConsumers,
+		"/consumers":                           api.GetConsumers,
 	}
 )
 

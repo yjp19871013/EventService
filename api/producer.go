@@ -87,7 +87,7 @@ func DeleteProducer(c *gin.Context) {
 // @Success 200 {object} dto.GetProducersResponse
 // @Failure 400 {object} dto.GetProducersResponse
 // @Failure 500 {object} dto.GetProducersResponse
-// @Router /event/api/v1/producer-plugins/{pluginId}/producers [get]
+// @Router /event/api/v1/producer-plugin/{pluginId}/producers [get]
 func GetPluginProducers(c *gin.Context) {
 	pluginIDStr := c.Param("pluginId")
 	if utils.IsStringEmpty(pluginIDStr) {

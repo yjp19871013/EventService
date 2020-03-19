@@ -3,8 +3,9 @@ package model
 import "com.fs/event-service/db"
 
 type ProducerPluginInfo struct {
-	ID         uint64
-	PluginName string
+	ID             uint64
+	PluginName     string
+	PluginFileName string
 }
 
 func TransferProducerPluginToProducerPluginInfo(p *db.ProducerPlugin) *ProducerPluginInfo {
@@ -13,8 +14,9 @@ func TransferProducerPluginToProducerPluginInfo(p *db.ProducerPlugin) *ProducerP
 	}
 
 	return &ProducerPluginInfo{
-		ID:         p.ID,
-		PluginName: p.Name,
+		ID:             p.ID,
+		PluginName:     p.Name,
+		PluginFileName: p.PluginFileName,
 	}
 }
 
