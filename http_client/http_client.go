@@ -33,14 +33,18 @@ func DestroyHttpClient(client *HTTPClient) {
 	client = nil
 }
 
-func (client *HTTPClient) Post(url string, request string, contentType string) (*http.Response, error) {
+func (client *HTTPClient) Post(url string, request string, header map[string]string) (*http.Response, error) {
 	req, err := http.NewRequest("POST", url, strings.NewReader(request))
 	if err != nil {
 		utils.PrintCallErr("HTTPClient.Post", "http.NewRequest", err)
 		return nil, err
 	}
 
-	req.Header.Add("Content-Type", contentType)
+	if header != nil {
+		for key, value := range header {
+			req.Header.Add(key, value)
+		}
+	}
 
 	return client.httpClient.Do(req)
 }
@@ -54,14 +58,18 @@ func (client *HTTPClient) Get(url string) (*http.Response, error) {
 	return client.httpClient.Do(req)
 }
 
-func (client *HTTPClient) Delete(url string, contentType string) (*http.Response, error) {
+func (client *HTTPClient) Delete(url string, header map[string]string) (*http.Response, error) {
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		utils.PrintCallErr("HTTPClient.Delete", "http.NewRequest", err)
 		return nil, err
 	}
 
-	req.Header.Add("Content-Type", contentType)
+	if header != nil {
+		for key, value := range header {
+			req.Header.Add(key, value)
+		}
+	}
 
 	return client.httpClient.Do(req)
 }

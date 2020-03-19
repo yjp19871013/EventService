@@ -88,7 +88,8 @@ func LoadPluginService(pluginID uint64) error {
 		}
 
 		client := http_client.NewHttpClient(config.HttpTimeoutSec)
-		response, err := client.Post(url, string(requestJson), "application/json")
+		header := map[string]string{"Content-Type": "application/json"}
+		response, err := client.Post(url, string(requestJson), header)
 		if err != nil {
 			utils.PrintCallErr("LoadPluginService", "client.Post", err)
 			return err
@@ -156,7 +157,8 @@ func UnloadPluginService(pluginID uint64) error {
 		url := baseUrl + "/api/v2/unload/producer-plugin/" + pluginIDStr
 
 		client := http_client.NewHttpClient(config.HttpTimeoutSec)
-		response, err := client.Delete(url, "application/json")
+		header := map[string]string{"Content-Type": "application/json"}
+		response, err := client.Delete(url, header)
 		if err != nil {
 			utils.PrintCallErr("UnloadPluginService", "client.Delete", err)
 			return err

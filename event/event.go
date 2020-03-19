@@ -50,7 +50,8 @@ func sendEventHttp(url string, producer string, name string, data string) error 
 	client := http_client.NewHttpClient(sendTimeoutSec)
 	defer http_client.DestroyHttpClient(client)
 
-	response, err := client.Post(url, string(eventJson), "application/json")
+	header := map[string]string{"Content-Type": "application/json"}
+	response, err := client.Post(url, string(eventJson), header)
 	if err != nil {
 		utils.PrintCallErr("SendStatusEventHTTP", "client.Post", err)
 		return err
