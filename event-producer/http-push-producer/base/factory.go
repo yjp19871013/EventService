@@ -46,6 +46,16 @@ func (factory *HttpPushFactory) NewInstance(producerName string) (event_producer
 		return nil, errors.New("没有传递配置参数")
 	}
 
+	if factory.InitProducer == nil {
+		utils.PrintErr("HttpPushFactory.NewInstance", "没有传递InitProducer")
+		return nil, errors.New("没有传递InitProducer")
+	}
+
+	if factory.DestroyProducer == nil {
+		utils.PrintErr("HttpPushFactory.NewInstance", "没有传递DestroyProducer")
+		return nil, errors.New("没有传递DestroyProducer")
+	}
+
 	configFilePath := filepath.Join(config.GetEventServiceConfig().PluginConfig.ProducerConfigDir,
 		producerConfigDir, producerName+".json")
 	configJson, err := ioutil.ReadFile(configFilePath)
