@@ -82,7 +82,7 @@ func (producer *Producer) GetByName() error {
 		}
 
 		utils.PrintErr("Producer.GetByName", "Find producer")
-		return errors.New("没有传递必要的参数")
+		return errors.New("生产者不存在")
 	}
 
 	return nil
