@@ -174,16 +174,16 @@ func NewProducerService(producerID uint64) error {
 			return err
 		}
 
-		loadPluginResponse := &dto.MsgResponse{}
-		err = json.Unmarshal(responseByte, loadPluginResponse)
+		newProducerResponse := &dto.MsgResponse{}
+		err = json.Unmarshal(responseByte, newProducerResponse)
 		if err != nil {
 			utils.PrintCallErr("NewProducerService", "json.Unmarshal", err)
 			return err
 		}
 
-		if !loadPluginResponse.Success {
-			utils.PrintErr("NewProducerService", loadPluginResponse.Msg)
-			return errors.New(loadPluginResponse.Msg)
+		if !newProducerResponse.Success {
+			utils.PrintErr("NewProducerService", newProducerResponse.Msg)
+			return errors.New(newProducerResponse.Msg)
 		}
 	}
 
