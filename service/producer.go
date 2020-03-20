@@ -221,7 +221,7 @@ func NewProducer(producerID uint64) error {
 
 func DestroyProducerService(producerID uint64) error {
 	if producerID == 0 {
-		utils.PrintErr("DestroyProducer", "没有传递必要的参数")
+		utils.PrintErr("DestroyProducerService", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
