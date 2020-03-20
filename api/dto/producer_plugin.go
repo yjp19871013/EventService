@@ -48,19 +48,6 @@ func FormProducerPluginInfo(p *model.ProducerPluginInfo) *ProducerPluginInfo {
 	return &ProducerPluginInfo{PluginName: p.PluginName, PluginFileName: p.PluginFileName}
 }
 
-func FormProducerPluginInfoBatch(ps []model.ProducerPluginInfo) []ProducerPluginInfo {
-	pluginInfos := make([]ProducerPluginInfo, 0)
-	if ps == nil {
-		return pluginInfos
-	}
-
-	for _, p := range ps {
-		pluginInfos = append(pluginInfos, *FormProducerPluginInfo(&p))
-	}
-
-	return pluginInfos
-}
-
 func FormProducerPluginInfoWithID(p *model.ProducerPluginInfo) *ProducerPluginInfoWithID {
 	if p == nil {
 		return &ProducerPluginInfoWithID{}
