@@ -42,27 +42,27 @@ func destroyPluginLoader(loader *pluginLoader) {
 func (loader *pluginLoader) load() error {
 	ps, err := db.GetAllProducerPlugins()
 	if err != nil {
-		utils.PrintCallErr("pluginLoader.startLoader", "db.GetAllProducerPlugins", err)
+		utils.PrintCallErr("pluginLoader.load", "db.GetAllProducerPlugins", err)
 		return err
 	}
 
 	for _, p := range ps {
 		err := loader.loadProducerPlugin(p.PluginFileName)
 		if err != nil {
-			utils.PrintCallErr("pluginLoader.startLoader", "loader.loadProducerPlugin", err)
+			utils.PrintCallErr("pluginLoader.load", "loader.loadProducerPlugin", err)
 			return err
 		}
 
 		producers, err := p.GetAllPluginProducers()
 		if err != nil {
-			utils.PrintCallErr("pluginLoader.startLoader", "p.GetAllPluginProducers", err)
+			utils.PrintCallErr("pluginLoader.load", "p.GetAllPluginProducers", err)
 			return err
 		}
 
 		for _, producer := range producers {
 			err := loader.newProducer(p.PluginFileName, producer.Name)
 			if err != nil {
-				utils.PrintCallErr("pluginLoader.startLoader", "loader.newProducer", err)
+				utils.PrintCallErr("pluginLoader.load", "loader.newProducer", err)
 				return err
 			}
 		}
@@ -74,21 +74,21 @@ func (loader *pluginLoader) load() error {
 func (loader *pluginLoader) unload() error {
 	ps, err := db.GetAllProducerPlugins()
 	if err != nil {
-		utils.PrintCallErr("pluginLoader.stopLoader", "db.GetAllProducerPlugins", err)
+		utils.PrintCallErr("pluginLoader.unload", "db.GetAllProducerPlugins", err)
 		return err
 	}
 
 	for _, p := range ps {
 		producers, err := p.GetAllPluginProducers()
 		if err != nil {
-			utils.PrintCallErr("pluginLoader.stopLoader", "p.GetAllPluginProducers", err)
+			utils.PrintCallErr("pluginLoader.unload", "p.GetAllPluginProducers", err)
 			return err
 		}
 
 		for _, producer := range producers {
 			err := loader.destroyProducer(p.PluginFileName, producer.Name)
 			if err != nil {
-				utils.PrintCallErr("pluginLoader.stopLoader", "loader.destroyProducer", err)
+				utils.PrintCallErr("pluginLoader.unload", "loader.destroyProducer", err)
 				return err
 			}
 		}
