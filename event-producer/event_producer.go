@@ -2,6 +2,7 @@ package event_producer
 
 import (
 	"com.fs/event-service/config"
+	"com.fs/event-service/plugins"
 	"com.fs/event-service/utils"
 	"os"
 	"path/filepath"
@@ -19,11 +20,9 @@ func init() {
 }
 
 type EventProducerFactory interface {
-	NewInstance(producerName string) (EventProducer, error)
-	DestroyInstance(producer EventProducer) error
+	plugins.Plugin
 }
 
 type EventProducer interface {
-	Start() error
-	Stop() error
+	plugins.Instance
 }

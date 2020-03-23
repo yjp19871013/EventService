@@ -2,7 +2,7 @@ package base
 
 import (
 	"com.fs/event-service/config"
-	"com.fs/event-service/event-producer"
+	"com.fs/event-service/plugins"
 	"com.fs/event-service/utils"
 	"encoding/json"
 	"errors"
@@ -36,12 +36,12 @@ type Config struct {
 type HttpPushFactory struct {
 	sync.Mutex
 
-	InitProducer    func(producerName string, conf *Config) (event_producer.EventProducer, error)
-	DestroyProducer func(prod event_producer.EventProducer) error
+	InitProducer    func(conf *Config) (plugins.Instance, error)
+	DestroyProducer func(instance plugins.Instance) error
 }
 
-func (factory *HttpPushFactory) NewInstance(producerName string) (event_producer.EventProducer, error) {
-	if utils.IsStringEmpty(producerName) {
+func (factory *HttpPushFactory) NewInstance(instanceFilePath string) (plugins.Instance, error) {
+	if utils.IsStringEmpty(instanceFilePath) {
 		utils.PrintErr("HttpPushFactory.NewInstance", "没有传递配置参数")
 		return nil, errors.New("没有传递配置参数")
 	}
@@ -56,9 +56,7 @@ func (factory *HttpPushFactory) NewInstance(producerName string) (event_producer
 		return nil, errors.New("没有传递DestroyProducer")
 	}
 
-	configFilePath := filepath.Join(config.GetEventServiceConfig().PluginConfig.ProducerConfigDir,
-		producerConfigDir, producerName+".json")
-	configJson, err := ioutil.ReadFile(configFilePath)
+	configJson, err := ioutil.ReadFile(instanceFilePath)
 	if err != nil {
 		utils.PrintCallErr("HttpPushFactory.NewInstance", "ioutil.ReadFile", err)
 		return nil, err
@@ -71,7 +69,7 @@ func (factory *HttpPushFactory) NewInstance(producerName string) (event_producer
 		return nil, err
 	}
 
-	pushProducer, err := factory.initProducerWithLock(producerName, conf)
+	pushProducer, err := factory.initInstanceWithLock(conf)
 	if err != nil {
 		utils.PrintCallErr("HttpPushFactory.NewInstance", "producer.initProducerWithLock", err)
 		return nil, err
@@ -80,26 +78,25 @@ func (factory *HttpPushFactory) NewInstance(producerName string) (event_producer
 	return pushProducer, nil
 }
 
-func (factory *HttpPushFactory) DestroyInstance(prod event_producer.EventProducer) error {
-	if prod == nil {
+func (factory *HttpPushFactory) DestroyInstance(instance plugins.Instance) error {
+	if instance == nil {
 		utils.PrintErr("HttpPushFactory.DestroyInstance", "传递的生产者为nil")
 		return errors.New("传递的生产者为nil")
 	}
 
-	return factory.destroyProducerWithLock(prod)
+	return factory.destroyProducerWithLock(instance)
 }
 
-func (factory *HttpPushFactory) initProducerWithLock(
-	producerName string, conf *Config) (event_producer.EventProducer, error) {
+func (factory *HttpPushFactory) initInstanceWithLock(conf *Config) (plugins.Instance, error) {
 	factory.Lock()
 	defer factory.Unlock()
 
-	return factory.InitProducer(producerName, conf)
+	return factory.InitProducer(conf)
 }
 
-func (factory *HttpPushFactory) destroyProducerWithLock(prod event_producer.EventProducer) error {
+func (factory *HttpPushFactory) destroyProducerWithLock(instance plugins.Instance) error {
 	factory.Lock()
 	defer factory.Unlock()
 
-	return factory.DestroyProducer(prod)
+	return factory.DestroyProducer(instance)
 }

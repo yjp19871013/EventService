@@ -7,8 +7,7 @@ import (
 )
 
 type Producer struct {
-	ProducerName string
-	Config       *Config
+	Config *Config
 
 	Pull func() error
 
@@ -16,11 +15,6 @@ type Producer struct {
 }
 
 func (prod *Producer) Start() error {
-	if utils.IsStringEmpty(prod.ProducerName) {
-		utils.PrintErr("Producer.Start", "没有初始化ProducerName")
-		return errors.New("没有初始化ProducerName")
-	}
-
 	if prod.Config == nil {
 		utils.PrintErr("Producer.Start", "没有传递配置")
 		return errors.New("没有传递配置")
@@ -49,6 +43,7 @@ func (prod *Producer) Start() error {
 				_ = p.pull()
 			case stop := <-p.stopChan:
 				if stop {
+					p.stopChan <- true
 					return
 				}
 			}
@@ -60,6 +55,7 @@ func (prod *Producer) Start() error {
 
 func (prod *Producer) Stop() error {
 	prod.stopChan <- true
+	<-prod.stopChan
 
 	return nil
 }

@@ -11,13 +11,10 @@
   },
   "plugins": {
     "dir": "/home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/plugins",
-    "producerConfigDir": "/home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/plugins/config"
-  },
-  "services": {
-    "baseUrls": [
-      "http://localhost:10300/event",
-      "http://localhost:10301/event",
-      "http://localhost:10302/event"
-    ]
+    "producerConfigDir": "/home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/instances",
+    "loadPluginTryTimes": 5,
+    "loadPluginTimeoutSec": 1,
+    "newInstanceTryTimes": 5,
+    "newInstanceTimeoutSec": 1
   }
 }

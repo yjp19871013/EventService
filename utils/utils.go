@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -29,4 +30,28 @@ func PathExists(path string) bool {
 	}
 
 	return false
+}
+
+func GetDirFiles(dir string) ([]string, error) {
+	dirList, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	filesRet := make([]string, 0)
+
+	for _, file := range dirList {
+		if file.IsDir() {
+			files, err := GetDirFiles(dir + string(os.PathSeparator) + file.Name())
+			if err != nil {
+				return nil, err
+			}
+
+			filesRet = append(filesRet, files...)
+		} else {
+			filesRet = append(filesRet, dir+string(os.PathSeparator)+file.Name())
+		}
+	}
+
+	return filesRet, nil
 }

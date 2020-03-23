@@ -4,10 +4,10 @@ import (
 	"com.fs/event-service/event-producer/http-push-producer/uface/producer"
 )
 
-var Factory producer.HttpPushFactory
+var Plugin producer.HttpPushFactory
 
 func init() {
-	Factory = producer.HttpPushFactory{}
-	Factory.InitProducer = producer.InitProducer
-	Factory.DestroyProducer = producer.DestroyProducer
+	Plugin = producer.HttpPushFactory{}
+	Plugin.InitProducer = producer.InitProducer
+	Plugin.DestroyProducer = producer.DestroyProducer
 }

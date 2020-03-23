@@ -18,12 +18,12 @@ type databaseConfig struct {
 }
 
 type pluginConfig struct {
-	Dir               string `json:"dir"`
-	ProducerConfigDir string `json:"producerConfigDir"`
-}
-
-type servicesConfig struct {
-	BaseUrls []string `json:"baseUrls"`
+	Dir                   string `json:"dir"`
+	ProducerConfigDir     string `json:"producerConfigDir"`
+	LoadPluginTryTimes    uint   `json:"loadPluginTryTimes"`
+	LoadPluginTimeoutSec  uint   `json:"loadPluginTimeoutSec"`
+	NewInstanceTryTimes   uint   `json:"newInstanceTryTimes"`
+	NewInstanceTimeoutSec uint   `json:"newInstanceTimeoutSec"`
 }
 
 type eventServiceConfig struct {
@@ -31,7 +31,6 @@ type eventServiceConfig struct {
 	ServerConfig   serverConfig   `json:"server"`
 	DatabaseConfig databaseConfig `json:"database"`
 	PluginConfig   pluginConfig   `json:"plugins"`
-	ServicesConfig servicesConfig `json:"services"`
 }
 
 var conf = &eventServiceConfig{}

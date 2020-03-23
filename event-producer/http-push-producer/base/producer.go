@@ -10,8 +10,7 @@ import (
 )
 
 type Producer struct {
-	ProducerName string
-	Config       *Config
+	Config *Config
 
 	OnHandle func(w http.ResponseWriter, r *http.Request)
 
@@ -19,11 +18,6 @@ type Producer struct {
 }
 
 func (prod *Producer) Start() error {
-	if utils.IsStringEmpty(prod.ProducerName) {
-		utils.PrintErr("Producer.Start", "没有初始化ProducerName")
-		return errors.New("没有初始化ProducerName")
-	}
-
 	if prod.Config == nil {
 		utils.PrintErr("Producer.Start", "没有传递配置")
 		return errors.New("没有传递配置")

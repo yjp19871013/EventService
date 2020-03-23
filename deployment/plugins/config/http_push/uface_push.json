@@ -1,5 +1,0 @@
-{
-  "serverUrl": "/uface/push",
-  "port": ":8888",
-  "method": "post"
-}
