@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rjeczalik/notify"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -13,8 +14,7 @@ import (
 )
 
 type instanceLoader struct {
-	plugin       Plugin
-	instancesDir string
+	plugin Plugin
 
 	instanceMapLock sync.Mutex
 	instanceMap     map[string]Instance
@@ -22,8 +22,8 @@ type instanceLoader struct {
 	stopChan chan bool
 }
 
-func initInstanceLoader(plugin Plugin, instancesDir string) (*instanceLoader, error) {
-	if plugin == nil || utils.IsStringEmpty(instancesDir) {
+func initInstanceLoader(plugin Plugin) (*instanceLoader, error) {
+	if plugin == nil {
 		utils.PrintErr("initInstanceLoader", "没有传递必要的参数")
 		return nil, errors.New("没有传递必要的参数")
 	}
@@ -31,7 +31,6 @@ func initInstanceLoader(plugin Plugin, instancesDir string) (*instanceLoader, er
 	loader := &instanceLoader{}
 
 	loader.plugin = plugin
-	loader.instancesDir = instancesDir
 
 	loader.instanceMapLock.Lock()
 	loader.instanceMap = make(map[string]Instance)
@@ -53,16 +52,24 @@ func destroyInstanceLoader(loader *instanceLoader) {
 	loader.instanceMap = nil
 	loader.instanceMapLock.Unlock()
 
-	loader.instancesDir = ""
 	loader.plugin = nil
 
 	loader = nil
 }
 
 func (loader *instanceLoader) start() error {
+	instancesDir := loader.plugin.GetInstancesDir()
+	if !utils.PathExists(instancesDir) {
+		err := os.MkdirAll(instancesDir, os.ModeDir|os.ModePerm)
+		if err != nil {
+			utils.PrintCallErr("instanceLoader.start", "os.MkdirAll", err)
+			return err
+		}
+	}
+
 	c := make(chan notify.EventInfo)
 
-	err := notify.Watch(loader.instancesDir, c, notify.Create, notify.Remove, notify.Rename)
+	err := notify.Watch(instancesDir, c, notify.Create, notify.Remove, notify.Rename)
 	if err != nil {
 		utils.PrintCallErr("instanceLoader.start", "notify.Watch", err)
 		return err

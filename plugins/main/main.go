@@ -3,8 +3,7 @@ package main
 import "com.fs/event-service/plugins"
 
 func main() {
-	pluginLoader, err := plugins.InitPluginLoader("/home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/plugins",
-		"/home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/instances")
+	pluginLoader, err := plugins.InitPluginLoader("/home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/plugins")
 	if err != nil {
 		panic(err)
 	}

@@ -6,17 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rjeczalik/notify"
-	"os"
-	"path/filepath"
 	"plugin"
-	"strings"
 	"sync"
 	"time"
 )
 
-type pluginLoader struct {
-	pluginsDir   string
-	instancesDir string
+type PluginLoader struct {
+	pluginsDir string
 
 	pluginMapLock sync.Mutex
 	pluginMap     map[string]Plugin
@@ -27,13 +23,13 @@ type pluginLoader struct {
 	stopChan chan bool
 }
 
-func InitPluginLoader(pluginsDir string, instancesDir string) (*pluginLoader, error) {
-	if utils.IsStringEmpty(pluginsDir) || utils.IsStringEmpty(instancesDir) {
+func InitPluginLoader(pluginsDir string) (*PluginLoader, error) {
+	if utils.IsStringEmpty(pluginsDir) {
 		utils.PrintErr("initPluginLoader", "没有传递必要的参数")
 		return nil, errors.New("没有传递必要的参数")
 	}
 
-	loader := &pluginLoader{}
+	loader := &PluginLoader{}
 
 	loader.pluginMapLock.Lock()
 	loader.pluginMap = make(map[string]Plugin)
@@ -46,17 +42,15 @@ func InitPluginLoader(pluginsDir string, instancesDir string) (*pluginLoader, er
 	loader.stopChan = make(chan bool)
 
 	loader.pluginsDir = pluginsDir
-	loader.instancesDir = instancesDir
 
 	return loader, nil
 }
 
-func DestroyPluginLoader(loader *pluginLoader) {
+func DestroyPluginLoader(loader *PluginLoader) {
 	if loader == nil {
 		return
 	}
 
-	loader.instancesDir = ""
 	loader.pluginsDir = ""
 
 	loader.stopChan = nil
@@ -72,7 +66,7 @@ func DestroyPluginLoader(loader *pluginLoader) {
 	loader = nil
 }
 
-func (loader *pluginLoader) Load() error {
+func (loader *PluginLoader) Load() error {
 	pluginFiles, err := loader.getAllPluginFiles()
 	if err != nil {
 		utils.PrintCallErr("pluginLoader.load", "loader.getAllPluginsNoLock", err)
@@ -90,7 +84,7 @@ func (loader *pluginLoader) Load() error {
 	return nil
 }
 
-func (loader *pluginLoader) Unload() error {
+func (loader *PluginLoader) Unload() error {
 	pluginFiles, err := loader.getAllPluginFiles()
 	if err != nil {
 		utils.PrintCallErr("pluginLoader.unload", "loader.getAllPluginFilesNoLock", err)
@@ -98,13 +92,16 @@ func (loader *pluginLoader) Unload() error {
 	}
 
 	for _, pluginFile := range pluginFiles {
-		loader.unloadPlugin(pluginFile)
+		err := loader.unloadPlugin(pluginFile)
+		if err != nil {
+			utils.PrintCallErr("pluginLoader.unload", "loader.unloadPlugin", err)
+		}
 	}
 
 	return nil
 }
 
-func (loader *pluginLoader) Start() error {
+func (loader *PluginLoader) Start() error {
 	c := make(chan notify.EventInfo)
 
 	err := notify.Watch(loader.pluginsDir, c, notify.Create, notify.Remove, notify.Rename)
@@ -113,7 +110,7 @@ func (loader *pluginLoader) Start() error {
 		return err
 	}
 
-	go func(loader *pluginLoader, c chan notify.EventInfo) {
+	go func(loader *PluginLoader, c chan notify.EventInfo) {
 		for true {
 			select {
 			case stop := <-loader.stopChan:
@@ -147,7 +144,12 @@ func (loader *pluginLoader) Start() error {
 				case notify.Remove:
 					fallthrough
 				case notify.Rename:
-					loader.unloadPlugin(ei.Path())
+					err := loader.unloadPlugin(ei.Path())
+					if err != nil {
+						utils.PrintCallErr("PluginLoader.Start", "loader.unloadPlugin", err)
+						continue
+					}
+
 					fmt.Println(ei.Path() + " unloaded")
 				}
 			}
@@ -157,12 +159,12 @@ func (loader *pluginLoader) Start() error {
 	return nil
 }
 
-func (loader *pluginLoader) Stop() {
+func (loader *PluginLoader) Stop() {
 	loader.stopChan <- true
 	<-loader.stopChan
 }
 
-func (loader *pluginLoader) loadPlugin(pluginFilePath string) error {
+func (loader *PluginLoader) loadPlugin(pluginFilePath string) error {
 	if utils.IsStringEmpty(pluginFilePath) {
 		utils.PrintErr("loadPlugin", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
@@ -194,18 +196,7 @@ func (loader *pluginLoader) loadPlugin(pluginFilePath string) error {
 
 	loader.addPlugin(pluginFilePath, instancePlugin)
 
-	pluginFileName := filepath.Base(pluginFilePath)
-	instancesSubDirName := strings.ReplaceAll(pluginFileName, filepath.Ext(pluginFileName), "")
-	instancesSubDir := filepath.Join(loader.instancesDir, instancesSubDirName)
-	if !utils.PathExists(instancesSubDir) {
-		err := os.MkdirAll(instancesSubDir, os.ModeDir|os.ModePerm)
-		if err != nil {
-			utils.PrintCallErr("loadPlugin", "os.MkdirAll", err)
-			return err
-		}
-	}
-
-	instanceLoader, err := initInstanceLoader(instancePlugin, instancesSubDir)
+	instanceLoader, err := initInstanceLoader(instancePlugin)
 	if err != nil {
 		utils.PrintCallErr("loadPlugin", "initInstanceLoader", err)
 		return err
@@ -222,7 +213,7 @@ func (loader *pluginLoader) loadPlugin(pluginFilePath string) error {
 	return nil
 }
 
-func (loader *pluginLoader) unloadPlugin(pluginFilePath string) error {
+func (loader *PluginLoader) unloadPlugin(pluginFilePath string) error {
 	if utils.IsStringEmpty(pluginFilePath) {
 		utils.PrintErr("pluginLoader.unloadPlugin", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
@@ -238,14 +229,14 @@ func (loader *pluginLoader) unloadPlugin(pluginFilePath string) error {
 	return nil
 }
 
-func (loader *pluginLoader) addPlugin(pluginFilePath string, p Plugin) {
+func (loader *PluginLoader) addPlugin(pluginFilePath string, p Plugin) {
 	loader.pluginMapLock.Lock()
 	defer loader.pluginMapLock.Unlock()
 
 	loader.pluginMap[pluginFilePath] = p
 }
 
-func (loader *pluginLoader) deletePlugin(pluginFilePath string) {
+func (loader *PluginLoader) deletePlugin(pluginFilePath string) {
 	loader.pluginMapLock.Lock()
 	defer loader.pluginMapLock.Unlock()
 
@@ -253,25 +244,25 @@ func (loader *pluginLoader) deletePlugin(pluginFilePath string) {
 	delete(loader.pluginMap, pluginFilePath)
 }
 
-func (loader *pluginLoader) getPlugin(pluginFilePath string) Plugin {
+func (loader *PluginLoader) getPlugin(pluginFilePath string) Plugin {
 	loader.pluginMapLock.Lock()
 	defer loader.pluginMapLock.Unlock()
 
 	return loader.pluginMap[pluginFilePath]
 }
 
-func (loader *pluginLoader) addInstanceLoader(pluginFilePath string, instanceLoader *instanceLoader) {
+func (loader *PluginLoader) addInstanceLoader(pluginFilePath string, instanceLoader *instanceLoader) {
 	loader.instanceLoaderMapLock.Lock()
 	defer loader.instanceLoaderMapLock.Unlock()
 
 	loader.instanceLoaderMap[pluginFilePath] = *instanceLoader
 }
 
-func (loader *pluginLoader) getAllPluginFiles() ([]string, error) {
+func (loader *PluginLoader) getAllPluginFiles() ([]string, error) {
 	return utils.GetDirFiles(loader.pluginsDir)
 }
 
-func (loader *pluginLoader) getAllLoadedPlugins() []string {
+func (loader *PluginLoader) getAllLoadedPlugins() []string {
 	loader.pluginMapLock.Lock()
 	defer loader.pluginMapLock.Unlock()
 
