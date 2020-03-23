@@ -17,8 +17,7 @@ type PluginLoader struct {
 	pluginMapLock sync.Mutex
 	pluginMap     map[string]Plugin
 
-	instanceLoaderMapLock sync.Mutex
-	instanceLoaderMap     map[string]instanceLoader
+	instanceLoaders []*instanceLoader
 
 	stopChan chan bool
 }
@@ -35,9 +34,7 @@ func InitPluginLoader(pluginsDir string) (*PluginLoader, error) {
 	loader.pluginMap = make(map[string]Plugin)
 	loader.pluginMapLock.Unlock()
 
-	loader.instanceLoaderMapLock.Lock()
-	loader.instanceLoaderMap = make(map[string]instanceLoader)
-	loader.instanceLoaderMapLock.Unlock()
+	loader.instanceLoaders = make([]*instanceLoader, 0)
 
 	loader.stopChan = make(chan bool)
 
@@ -59,9 +56,7 @@ func DestroyPluginLoader(loader *PluginLoader) {
 	loader.pluginMap = nil
 	loader.pluginMapLock.Unlock()
 
-	loader.instanceLoaderMapLock.Lock()
-	loader.instanceLoaderMap = nil
-	loader.instanceLoaderMapLock.Unlock()
+	loader.instanceLoaders = nil
 
 	loader = nil
 }
@@ -208,7 +203,7 @@ func (loader *PluginLoader) loadPlugin(pluginFilePath string) error {
 		return err
 	}
 
-	loader.addInstanceLoader(pluginFilePath, instanceLoader)
+	loader.instanceLoaders = append(loader.instanceLoaders, instanceLoader)
 
 	return nil
 }
@@ -219,9 +214,9 @@ func (loader *PluginLoader) unloadPlugin(pluginFilePath string) error {
 		return errors.New("没有传递必要的参数")
 	}
 
-	for _, instanceLoader := range loader.instanceLoaderMap {
+	for _, instanceLoader := range loader.instanceLoaders {
 		instanceLoader.stop()
-		destroyInstanceLoader(&instanceLoader)
+		destroyInstanceLoader(instanceLoader)
 	}
 
 	loader.deletePlugin(pluginFilePath)
@@ -249,13 +244,6 @@ func (loader *PluginLoader) getPlugin(pluginFilePath string) Plugin {
 	defer loader.pluginMapLock.Unlock()
 
 	return loader.pluginMap[pluginFilePath]
-}
-
-func (loader *PluginLoader) addInstanceLoader(pluginFilePath string, instanceLoader *instanceLoader) {
-	loader.instanceLoaderMapLock.Lock()
-	defer loader.instanceLoaderMapLock.Unlock()
-
-	loader.instanceLoaderMap[pluginFilePath] = *instanceLoader
 }
 
 func (loader *PluginLoader) getAllPluginFiles() ([]string, error) {
