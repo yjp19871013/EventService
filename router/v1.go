@@ -19,6 +19,8 @@ var (
 	v1GetRouter = map[string]gin.HandlerFunc{
 		"/producer/:producerName/consumers": api.GetProducerConsumers,
 		"/consumers":                        api.GetConsumers,
+		"/producers":                        api.GetAllProducers,
+		"/plugin/:pluginName/producers":     api.GetPluginAllProducers,
 	}
 )
 
