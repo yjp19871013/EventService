@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -54,4 +55,9 @@ func GetDirFiles(dir string) ([]string, error) {
 	}
 
 	return filesRet, nil
+}
+
+func GetFileNameWithoutExt(pathname string) string {
+	fileName := filepath.Base(pathname)
+	return strings.ReplaceAll(fileName, filepath.Ext(fileName), "")
 }

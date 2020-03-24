@@ -1,7 +1,7 @@
 package plugins
 
 type Plugin interface {
-	NewInstance(instanceFilePath string) (Instance, error)
+	NewInstance(instanceName string) (Instance, error)
 	DestroyInstance(instance Instance) error
 	GetInstancesDir() string
 }

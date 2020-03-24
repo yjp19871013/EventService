@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/rjeczalik/notify"
 	"os"
-	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 )
@@ -135,14 +133,14 @@ func (loader *instanceLoader) newInstance(instanceFilePath string) error {
 		return errors.New("没有传递必要的参数")
 	}
 
-	instance := loader.getInstance(instanceFilePath)
+	instanceName := utils.GetFileNameWithoutExt(instanceFilePath)
+
+	instance := loader.getInstance(instanceName)
 	if instance != nil {
 		utils.PrintErr("newInstance", "该名称的实例已存在")
 		return errors.New("该名称的实例已存在")
 	}
 
-	instanceFileName := filepath.Base(instanceFilePath)
-	instanceName := strings.ReplaceAll(instanceFileName, filepath.Ext(instanceFileName), "")
 	instance, err := loader.plugin.NewInstance(instanceName)
 	if err != nil {
 		utils.PrintCallErr("newInstance", "loader.plugin.NewInstance", err)
@@ -155,7 +153,7 @@ func (loader *instanceLoader) newInstance(instanceFilePath string) error {
 		return err
 	}
 
-	loader.addInstance(instanceFilePath, instance)
+	loader.addInstance(instanceName, instance)
 
 	return nil
 }
@@ -166,13 +164,14 @@ func (loader *instanceLoader) destroyInstance(instanceFilePath string) error {
 		return errors.New("没有传递必要的参数")
 	}
 
-	instance := loader.getInstance(instanceFilePath)
+	instanceName := utils.GetFileNameWithoutExt(instanceFilePath)
+	instance := loader.getInstance(instanceName)
 	if instance == nil {
 		utils.PrintErr("destroyInstance", "没有找到对应的生产者")
 		return errors.New("没有找到对应的生产者")
 	}
 
-	loader.deleteInstance(instanceFilePath)
+	loader.deleteInstance(instanceName)
 
 	err := instance.Stop()
 	if err != nil {
@@ -189,26 +188,26 @@ func (loader *instanceLoader) destroyInstance(instanceFilePath string) error {
 	return nil
 }
 
-func (loader *instanceLoader) addInstance(instanceFilePath string, instance Instance) {
+func (loader *instanceLoader) addInstance(instanceName string, instance Instance) {
 	loader.instanceMapLock.Lock()
 	defer loader.instanceMapLock.Unlock()
 
-	loader.instanceMap[instanceFilePath] = instance
+	loader.instanceMap[instanceName] = instance
 }
 
-func (loader *instanceLoader) getInstance(instanceFilePath string) Instance {
+func (loader *instanceLoader) getInstance(instanceName string) Instance {
 	loader.instanceMapLock.Lock()
 	defer loader.instanceMapLock.Unlock()
 
-	return loader.instanceMap[instanceFilePath]
+	return loader.instanceMap[instanceName]
 }
 
-func (loader *instanceLoader) deleteInstance(instanceFilePath string) {
+func (loader *instanceLoader) deleteInstance(instanceName string) {
 	loader.instanceMapLock.Lock()
 	defer loader.instanceMapLock.Unlock()
 
-	loader.instanceMap[instanceFilePath] = nil
-	delete(loader.instanceMap, instanceFilePath)
+	loader.instanceMap[instanceName] = nil
+	delete(loader.instanceMap, instanceName)
 }
 
 func (loader *instanceLoader) getAllInstances() []string {

@@ -1,31 +1,13 @@
 package base
 
 import (
-	"com.fs/event-service/config"
 	"com.fs/event-service/plugins"
 	"com.fs/event-service/utils"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"os"
-	"path/filepath"
 	"sync"
 )
-
-const (
-	producerConfigDir = "http_pull"
-)
-
-func init() {
-	conf := config.GetEventServiceConfig().PluginConfig
-	configDir := filepath.Join(conf.ProducerConfigDir, producerConfigDir)
-	if !utils.PathExists(configDir) {
-		err := os.MkdirAll(configDir, os.ModePerm|os.ModeDir)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
 
 type Config struct {
 	PullUrl       string `json:"pullUrl"`

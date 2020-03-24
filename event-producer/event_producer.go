@@ -17,6 +17,14 @@ func init() {
 			panic(err)
 		}
 	}
+
+	instancesDir := filepath.Join(conf.ProducerConfigDir)
+	if !utils.PathExists(instancesDir) {
+		err := os.MkdirAll(instancesDir, os.ModePerm|os.ModeDir)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 type EventProducerFactory interface {

@@ -189,7 +189,8 @@ func (loader *PluginLoader) loadPlugin(pluginFilePath string) error {
 		return errors.New("类型转换失败")
 	}
 
-	loader.addPlugin(pluginFilePath, instancePlugin)
+	pluginName := utils.GetFileNameWithoutExt(pluginFilePath)
+	loader.addPlugin(pluginName, instancePlugin)
 
 	instanceLoader, err := initInstanceLoader(instancePlugin)
 	if err != nil {
@@ -219,31 +220,32 @@ func (loader *PluginLoader) unloadPlugin(pluginFilePath string) error {
 		destroyInstanceLoader(instanceLoader)
 	}
 
-	loader.deletePlugin(pluginFilePath)
+	pluginName := utils.GetFileNameWithoutExt(pluginFilePath)
+	loader.deletePlugin(pluginName)
 
 	return nil
 }
 
-func (loader *PluginLoader) addPlugin(pluginFilePath string, p Plugin) {
+func (loader *PluginLoader) addPlugin(pluginName string, p Plugin) {
 	loader.pluginMapLock.Lock()
 	defer loader.pluginMapLock.Unlock()
 
-	loader.pluginMap[pluginFilePath] = p
+	loader.pluginMap[pluginName] = p
 }
 
-func (loader *PluginLoader) deletePlugin(pluginFilePath string) {
+func (loader *PluginLoader) deletePlugin(pluginName string) {
 	loader.pluginMapLock.Lock()
 	defer loader.pluginMapLock.Unlock()
 
-	loader.pluginMap[pluginFilePath] = nil
-	delete(loader.pluginMap, pluginFilePath)
+	loader.pluginMap[pluginName] = nil
+	delete(loader.pluginMap, pluginName)
 }
 
-func (loader *PluginLoader) getPlugin(pluginFilePath string) Plugin {
+func (loader *PluginLoader) getPlugin(pluginName string) Plugin {
 	loader.pluginMapLock.Lock()
 	defer loader.pluginMapLock.Unlock()
 
-	return loader.pluginMap[pluginFilePath]
+	return loader.pluginMap[pluginName]
 }
 
 func (loader *PluginLoader) getAllPluginFiles() ([]string, error) {
