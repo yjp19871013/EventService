@@ -17,7 +17,8 @@ type PluginLoader struct {
 	pluginMapLock sync.Mutex
 	pluginMap     map[string]Plugin
 
-	instanceLoaders []*instanceLoader
+	instanceLoadersLock sync.Mutex
+	instanceLoaders     []*instanceLoader
 
 	stopChan chan bool
 }
@@ -34,7 +35,9 @@ func InitPluginLoader(pluginsDir string) (*PluginLoader, error) {
 	loader.pluginMap = make(map[string]Plugin)
 	loader.pluginMapLock.Unlock()
 
+	loader.instanceLoadersLock.Lock()
 	loader.instanceLoaders = make([]*instanceLoader, 0)
+	loader.instanceLoadersLock.Unlock()
 
 	loader.stopChan = make(chan bool)
 
@@ -56,7 +59,9 @@ func DestroyPluginLoader(loader *PluginLoader) {
 	loader.pluginMap = nil
 	loader.pluginMapLock.Unlock()
 
+	loader.instanceLoadersLock.Lock()
 	loader.instanceLoaders = nil
+	loader.instanceLoadersLock.Unlock()
 
 	loader = nil
 }
@@ -159,6 +164,37 @@ func (loader *PluginLoader) Stop() {
 	<-loader.stopChan
 }
 
+func (loader *PluginLoader) CheckInstanceExist(instanceName string) (bool, error) {
+	if utils.IsStringEmpty(instanceName) {
+		utils.PrintErr("PluginLoader.CheckInstanceExist", "没有传递必要的参数")
+		return false, errors.New("没有传递必要的参数")
+	}
+
+	loader.instanceLoadersLock.Lock()
+	defer loader.instanceLoadersLock.Unlock()
+
+	for _, l := range loader.instanceLoaders {
+		instance := l.getInstance(instanceName)
+		if instance != nil {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func (loader *PluginLoader) GetAllInstances() []string {
+	loader.instanceLoadersLock.Lock()
+	defer loader.instanceLoadersLock.Unlock()
+
+	instanceNames := make([]string, 0)
+	for _, l := range loader.instanceLoaders {
+		instanceNames = append(instanceNames, l.getAllInstances()...)
+	}
+
+	return instanceNames
+}
+
 func (loader *PluginLoader) loadPlugin(pluginFilePath string) error {
 	if utils.IsStringEmpty(pluginFilePath) {
 		utils.PrintErr("loadPlugin", "没有传递必要的参数")
@@ -204,7 +240,9 @@ func (loader *PluginLoader) loadPlugin(pluginFilePath string) error {
 		return err
 	}
 
+	loader.instanceLoadersLock.Lock()
 	loader.instanceLoaders = append(loader.instanceLoaders, instanceLoader)
+	loader.instanceLoadersLock.Unlock()
 
 	return nil
 }
@@ -215,10 +253,18 @@ func (loader *PluginLoader) unloadPlugin(pluginFilePath string) error {
 		return errors.New("没有传递必要的参数")
 	}
 
+	loader.instanceLoadersLock.Lock()
+
 	for _, instanceLoader := range loader.instanceLoaders {
+		loader.instanceLoadersLock.Unlock()
+
 		instanceLoader.stop()
 		destroyInstanceLoader(instanceLoader)
+
+		loader.instanceLoadersLock.Lock()
 	}
+
+	loader.instanceLoadersLock.Unlock()
 
 	pluginName := utils.GetFileNameWithoutExt(pluginFilePath)
 	loader.deletePlugin(pluginName)

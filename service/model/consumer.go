@@ -3,9 +3,10 @@ package model
 import "com.fs/event-service/db"
 
 type ConsumerInfo struct {
-	ID   uint64
-	Name string
-	Url  string
+	ID           uint64
+	Name         string
+	ProducerName string
+	Url          string
 }
 
 func TransferConsumerToConsumerInfo(consumer *db.Consumer) *ConsumerInfo {
@@ -14,9 +15,10 @@ func TransferConsumerToConsumerInfo(consumer *db.Consumer) *ConsumerInfo {
 	}
 
 	return &ConsumerInfo{
-		ID:   consumer.ID,
-		Name: consumer.Name,
-		Url:  consumer.Url,
+		ID:           consumer.ID,
+		Name:         consumer.Name,
+		ProducerName: consumer.ProducerName,
+		Url:          consumer.Url,
 	}
 }
 

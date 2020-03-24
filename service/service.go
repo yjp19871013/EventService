@@ -28,7 +28,7 @@ func Destroy() {
 
 func initPluginLoader() error {
 	pluginConfig := config.GetEventServiceConfig().PluginConfig
-	pluginLoader, err := plugins.InitPluginLoader(pluginConfig.Dir, pluginConfig.ProducerConfigDir)
+	pluginLoader, err := plugins.InitPluginLoader(pluginConfig.Dir)
 	if err != nil {
 		utils.PrintCallErr("initPluginLoader", "plugins.InitPluginLoader", err)
 		return err

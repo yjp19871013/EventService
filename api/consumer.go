@@ -29,7 +29,7 @@ func AddConsumer(c *gin.Context) {
 		return
 	}
 
-	err = service.AddConsumer(request.ProducerID, request.ConsumerName, request.Url)
+	err = service.AddConsumer(request.ProducerName, request.ConsumerName, request.Url)
 	if err != nil {
 		dto.Response200FailJson(c, err)
 		return
@@ -77,31 +77,22 @@ func DeleteConsumer(c *gin.Context) {
 // @Tags 事件消费者
 // @Accept  json
 // @Produce json
-// @Param producerId path string true "事件生产者ID"
+// @Param producerName path string true "事件生产者名称"
 // @Success 200 {object} dto.GetConsumersResponse
 // @Failure 400 {object} dto.GetConsumersResponse
 // @Failure 500 {object} dto.GetConsumersResponse
-// @Router /event/api/v1/producer/{producerId}/consumers [get]
+// @Router /event/api/v1/producer/{producerName}/consumers [get]
 func GetProducerConsumers(c *gin.Context) {
-	producerIdStr := c.Param("producerId")
-	if utils.IsStringEmpty(producerIdStr) {
+	producerName := c.Param("producerName")
+	if utils.IsStringEmpty(producerName) {
 		c.JSON(http.StatusBadRequest, dto.GetConsumersResponse{
-			MsgResponse: dto.FormFailureMsgResponse("获取某个生产者下的所有事件消费者失败", errors.New("没有传递producerId")),
+			MsgResponse: dto.FormFailureMsgResponse("获取某个生产者下的所有事件消费者失败", errors.New("没有传递producerName")),
 			Consumers:   dto.FormConsumerInfoWithIDBatch(nil),
 		})
 		return
 	}
 
-	producerID, err := strconv.ParseUint(producerIdStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusOK, dto.GetConsumersResponse{
-			MsgResponse: dto.FormFailureMsgResponse("获取某个生产者下的所有事件消费者失败", err),
-			Consumers:   dto.FormConsumerInfoWithIDBatch(nil),
-		})
-		return
-	}
-
-	consumers, err := service.GetProducerConsumers(producerID)
+	consumers, err := service.GetProducerConsumers(producerName)
 	if err != nil {
 		c.JSON(http.StatusOK, dto.GetConsumersResponse{
 			MsgResponse: dto.FormFailureMsgResponse("获取某个生产者下的所有事件消费者失败", err),

@@ -7,23 +7,27 @@ import (
 	"errors"
 )
 
-func AddConsumer(producerID uint64, consumerName string, url string) error {
-	if producerID == 0 || utils.IsStringEmpty(consumerName) || utils.IsStringEmpty(url) {
+func AddConsumer(producerName string, consumerName string, url string) error {
+	if utils.IsStringEmpty(producerName) || utils.IsStringEmpty(consumerName) || utils.IsStringEmpty(url) {
 		utils.PrintErr("AddConsumer", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
-	producer := &db.Producer{ID: producerID}
-	err := producer.GetByID()
+	exist, err := loader.CheckInstanceExist(producerName)
 	if err != nil {
-		utils.PrintCallErr("AddConsumer", "p.GetByID", err)
+		utils.PrintCallErr("AddConsumer", "loader.CheckInstanceExist", err)
 		return err
 	}
 
+	if !exist {
+		utils.PrintErr("AddConsumer", "生产者不存在")
+		return errors.New("生产者不存在")
+	}
+
 	consumer := &db.Consumer{
-		Name:       consumerName,
-		Url:        url,
-		ProducerID: producer.ID,
+		Name:         consumerName,
+		Url:          url,
+		ProducerName: producerName,
 	}
 
 	err = consumer.Create()
@@ -57,52 +61,15 @@ func DeleteConsumer(id uint64) error {
 	return nil
 }
 
-func DeleteProducerConsumers(producerID uint64) error {
-	if producerID == 0 {
-		utils.PrintErr("DeleteAllConsumers", "没有传递必要的参数")
-		return errors.New("没有传递必要的参数")
-	}
-
-	producer := &db.Producer{ID: producerID}
-	err := producer.GetByID()
-	if err != nil {
-		utils.PrintCallErr("DeleteAllConsumers", "producer.GetByID", err)
-		return err
-	}
-
-	consumers, err := producer.GetAllProducerConsumers()
-	if err != nil {
-		utils.PrintCallErr("DeleteAllConsumers", "producer.GetAllProducerConsumers", err)
-		return err
-	}
-
-	for _, consumer := range consumers {
-		err := consumer.DeleteByID()
-		if err != nil {
-			utils.PrintCallErr("DeleteAllConsumers", "consumer.DeleteByIDAndName", err)
-			return err
-		}
-	}
-
-	return nil
-}
-
-func GetProducerConsumers(producerID uint64) ([]model.ConsumerInfo, error) {
-	if producerID == 0 {
+func GetProducerConsumers(producerName string) ([]model.ConsumerInfo, error) {
+	if utils.IsStringEmpty(producerName) {
 		utils.PrintErr("GetProducerConsumers", "没有传递必要的参数")
 		return nil, errors.New("没有传递必要的参数")
 	}
 
-	producer := &db.Producer{ID: producerID}
-	err := producer.GetByID()
+	consumers, err := db.GetConsumersByProducerName(producerName)
 	if err != nil {
-		utils.PrintCallErr("GetProducerConsumers", "producer.GetByID", err)
-		return nil, err
-	}
-
-	consumers, err := producer.GetAllProducerConsumers()
-	if err != nil {
-		utils.PrintCallErr("GetProducerConsumers", "producer.GetAllProducerConsumers", err)
+		utils.PrintCallErr("GetProducerConsumers", "db.GetConsumersByProducerName", err)
 		return nil, err
 	}
 

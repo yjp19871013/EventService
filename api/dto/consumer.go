@@ -3,9 +3,7 @@ package dto
 import "com.fs/event-service/service/model"
 
 type AddConsumerRequest struct {
-	ProducerID   uint64 `json:"producerId" binding:"required"`
-	ConsumerName string `json:"consumerName" binding:"required"`
-	Url          string `json:"url" binding:"required"`
+	ConsumerInfo
 }
 
 type GetConsumersResponse struct {
@@ -14,6 +12,7 @@ type GetConsumersResponse struct {
 }
 
 type ConsumerInfo struct {
+	ProducerName string `json:"producerName" binding:"required"`
 	ConsumerName string `json:"consumerName" binding:"required"`
 	Url          string `json:"url" binding:"required"`
 }
@@ -29,6 +28,7 @@ func FormConsumerInfo(consumer *model.ConsumerInfo) *ConsumerInfo {
 	}
 
 	return &ConsumerInfo{
+		ProducerName: consumer.ProducerName,
 		ConsumerName: consumer.Name,
 		Url:          consumer.Url,
 	}

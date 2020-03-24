@@ -8,22 +8,21 @@ import (
 )
 
 type Consumer struct {
-	ID   uint64 `gorm:"primary_key;"`
-	Name string `gorm:"not null;type:varchar(256);"`
-	Url  string `gorm:"not null;type:varchar(2048);"`
-
-	ProducerID uint64
+	ID           uint64 `gorm:"primary_key;"`
+	Name         string `gorm:"not null;type:varchar(256);"`
+	ProducerName string `gorm:"not null;type:varchar(256);"`
+	Url          string `gorm:"not null;type:varchar(2048);"`
 }
 
 func (consumer *Consumer) Create() error {
-	if utils.IsStringEmpty(consumer.Name) || utils.IsStringEmpty(consumer.Url) || consumer.ProducerID == 0 {
+	if utils.IsStringEmpty(consumer.Name) || utils.IsStringEmpty(consumer.ProducerName) || utils.IsStringEmpty(consumer.Url) {
 		utils.PrintErr("Consumer.Create", "没有传递必要的参数")
 		return errors.New("没有传递必要的参数")
 	}
 
 	var existCount uint64
-	err := getInstance().Model(&Consumer{}).Where("name = ? AND producer_id = ?",
-		consumer.Name, consumer.ProducerID).
+	err := getInstance().Model(&Consumer{}).Where("name = ? AND producer_name = ?",
+		consumer.Name, consumer.ProducerName).
 		Count(&existCount).Error
 	if err != nil {
 		utils.PrintCallErr("Consumer.Create", "Count exist consumer", err)
@@ -39,7 +38,7 @@ func (consumer *Consumer) Create() error {
 	if err != nil {
 		if strings.Contains(err.Error(), "Error 1062") {
 			utils.PrintErr("Consumer.Create", "消费者已存在")
-			return errors.New("生产者插件已存在")
+			return errors.New("消费者已存在")
 		}
 
 		utils.PrintCallErr("Consumer.Create", "创建消费者", err)
@@ -67,6 +66,27 @@ func (consumer *Consumer) GetByID() error {
 	}
 
 	return nil
+}
+
+func GetConsumersByProducerName(producerName string) ([]Consumer, error) {
+	if utils.IsStringEmpty(producerName) {
+		utils.PrintErr("Consumer.GetByProducerName", "没有传递必要的参数")
+		return nil, errors.New("没有传递必要的参数")
+	}
+
+	consumers := make([]Consumer, 0)
+	err := getInstance().Where("producer_name = ?", producerName).Find(&consumers).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			utils.PrintErr("Consumer.GetByProducerName", "消费者不存在")
+			return nil, errors.New("消费者不存在")
+		}
+
+		utils.PrintCallErr("Consumer.GetByProducerName", "Find consumer", err)
+		return nil, err
+	}
+
+	return consumers, nil
 }
 
 func (consumer *Consumer) DeleteByID() error {
