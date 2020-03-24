@@ -50,8 +50,7 @@ func (factory *HttpPullFactory) NewInstance(instanceName string) (plugins.Instan
 		return nil, errors.New("没有传递OfferInstancesSubDir")
 	}
 
-	pluginConfig := config.GetEventServiceConfig().PluginConfig
-	instanceFilePath := filepath.Join(pluginConfig.ProducerConfigDir, instanceName, ".json")
+	instanceFilePath := filepath.Join(factory.GetInstancesDir(), instanceName+".json")
 	configJson, err := ioutil.ReadFile(instanceFilePath)
 	if err != nil {
 		utils.PrintCallErr("HttpPullFactory.NewInstance", "ioutil.ReadFile", err)
@@ -84,7 +83,8 @@ func (factory *HttpPullFactory) DestroyInstance(instance plugins.Instance) error
 }
 
 func (factory *HttpPullFactory) GetInstancesDir() string {
-	return filepath.Join(httpPullInstanceDir, factory.OfferInstancesSubDir())
+	conf := config.GetEventServiceConfig().PluginConfig
+	return filepath.Join(conf.ProducerConfigDir, httpPullInstanceDir, factory.OfferInstancesSubDir())
 }
 
 func (factory *HttpPullFactory) initInstanceWithLock(conf *Config) (plugins.Instance, error) {
