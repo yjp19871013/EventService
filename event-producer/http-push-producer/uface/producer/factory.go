@@ -7,6 +7,10 @@ import (
 	"errors"
 )
 
+const (
+	ufaceInstancesDir = "uface"
+)
+
 type HttpPushFactory struct {
 	base.HttpPushFactory
 }
@@ -42,4 +46,8 @@ func DestroyProducer(instance plugins.Instance) error {
 	pushProducer = nil
 
 	return nil
+}
+
+func OfferInstancesSubDir() string {
+	return ufaceInstancesDir
 }

@@ -7,6 +7,10 @@ import (
 	"errors"
 )
 
+const (
+	fsRelayInstancesDir = "fs_relay"
+)
+
 type HttpPullFactory struct {
 	base.HttpPullFactory
 }
@@ -42,4 +46,8 @@ func DestroyProducer(instance plugins.Instance) error {
 	pullProducer = nil
 
 	return nil
+}
+
+func OfferInstancesSubDir() string {
+	return fsRelayInstancesDir
 }

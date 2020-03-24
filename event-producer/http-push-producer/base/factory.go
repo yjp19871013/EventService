@@ -45,6 +45,11 @@ func (factory *HttpPushFactory) NewInstance(instanceName string) (plugins.Instan
 		return nil, errors.New("没有传递DestroyProducer")
 	}
 
+	if factory.OfferInstancesSubDir == nil {
+		utils.PrintErr("HttpPushFactory.NewInstance", "没有传递OfferInstancesSubDir")
+		return nil, errors.New("没有传递OfferInstancesSubDir")
+	}
+
 	pluginConfig := config.GetEventServiceConfig().PluginConfig
 	instanceFilePath := filepath.Join(pluginConfig.ProducerConfigDir, instanceName, ".json")
 	configJson, err := ioutil.ReadFile(instanceFilePath)

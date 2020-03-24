@@ -8,4 +8,5 @@ func init() {
 	Plugin = producer.HttpPullFactory{}
 	Plugin.InitProducer = producer.InitProducer
 	Plugin.DestroyProducer = producer.DestroyProducer
+	Plugin.OfferInstancesSubDir = producer.OfferInstancesSubDir
 }
