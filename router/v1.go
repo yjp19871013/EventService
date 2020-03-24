@@ -21,6 +21,7 @@ var (
 		"/consumers":                        api.GetConsumers,
 		"/producers":                        api.GetAllProducers,
 		"/plugin/:pluginName/producers":     api.GetPluginAllProducers,
+		"/plugins":                          api.GetLoadedPlugins,
 	}
 )
 

@@ -4,6 +4,7 @@ import (
 	"com.fs/event-service/api/dto"
 	"com.fs/event-service/service"
 	"com.fs/event-service/utils"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -21,6 +22,7 @@ import (
 func GetAllProducers(c *gin.Context) {
 	producers := service.GetAllProducers()
 	c.JSON(http.StatusOK, dto.GetProducersResponse{
+		MsgResponse:   dto.FormSuccessMsgResponse("获取事件生产者成功"),
 		ProducerInfos: dto.FormProducerInfoBatch(producers),
 	})
 }
@@ -40,6 +42,7 @@ func GetPluginAllProducers(c *gin.Context) {
 	pluginName := c.Param("pluginName")
 	if utils.IsStringEmpty(pluginName) {
 		c.JSON(http.StatusBadRequest, dto.GetPluginProducersResponse{
+			MsgResponse:  dto.FormFailureMsgResponse("获取对应插件的事件生产者失败", errors.New("没有传递必要的参数")),
 			ProducerInfo: *dto.FormProducerInfo(nil),
 		})
 		return
@@ -48,12 +51,14 @@ func GetPluginAllProducers(c *gin.Context) {
 	producerInfo, err := service.GetPluginProducers(pluginName)
 	if err != nil {
 		c.JSON(http.StatusOK, dto.GetPluginProducersResponse{
+			MsgResponse:  dto.FormFailureMsgResponse("获取对应插件的事件生产者失败", err),
 			ProducerInfo: *dto.FormProducerInfo(nil),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, dto.GetPluginProducersResponse{
+		MsgResponse:  dto.FormSuccessMsgResponse("获取对应插件的事件生产者成功"),
 		ProducerInfo: *dto.FormProducerInfo(producerInfo),
 	})
 }

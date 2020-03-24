@@ -211,6 +211,18 @@ func (loader *PluginLoader) GetPluginInstances(pluginName string) ([]string, err
 	return instanceLoader.getAllInstances(), nil
 }
 
+func (loader *PluginLoader) GetAllLoadedPlugins() []string {
+	loader.pluginMapLock.Lock()
+	defer loader.pluginMapLock.Unlock()
+
+	plugins := make([]string, 0)
+	for pluginFilePath, _ := range loader.pluginMap {
+		plugins = append(plugins, pluginFilePath)
+	}
+
+	return plugins
+}
+
 func (loader *PluginLoader) loadPlugin(pluginFilePath string) error {
 	if utils.IsStringEmpty(pluginFilePath) {
 		utils.PrintErr("loadPlugin", "没有传递必要的参数")
@@ -313,16 +325,4 @@ func (loader *PluginLoader) getPlugin(pluginName string) Plugin {
 
 func (loader *PluginLoader) getAllPluginFiles() ([]string, error) {
 	return utils.GetDirFiles(loader.pluginsDir)
-}
-
-func (loader *PluginLoader) getAllLoadedPlugins() []string {
-	loader.pluginMapLock.Lock()
-	defer loader.pluginMapLock.Unlock()
-
-	plugins := make([]string, 0)
-	for pluginFilePath, _ := range loader.pluginMap {
-		plugins = append(plugins, pluginFilePath)
-	}
-
-	return plugins
 }

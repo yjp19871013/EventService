@@ -3,10 +3,12 @@ package dto
 import "com.fs/event-service/service/model"
 
 type GetProducersResponse struct {
+	MsgResponse
 	ProducerInfos []ProducerInfo `json:"producerInfos" binding:"required"`
 }
 
 type GetPluginProducersResponse struct {
+	MsgResponse
 	ProducerInfo
 }
 
