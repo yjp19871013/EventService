@@ -1,12 +1,18 @@
 package base
 
 import (
+	"com.fs/event-service/config"
 	"com.fs/event-service/plugins"
 	"com.fs/event-service/utils"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"path/filepath"
 	"sync"
+)
+
+const (
+	httpPushInstanceDir = "http_push"
 )
 
 type Config struct {
@@ -18,12 +24,13 @@ type Config struct {
 type HttpPushFactory struct {
 	sync.Mutex
 
-	InitProducer    func(conf *Config) (plugins.Instance, error)
-	DestroyProducer func(instance plugins.Instance) error
+	InitProducer         func(conf *Config) (plugins.Instance, error)
+	DestroyProducer      func(instance plugins.Instance) error
+	OfferInstancesSubDir func() string
 }
 
-func (factory *HttpPushFactory) NewInstance(instanceFilePath string) (plugins.Instance, error) {
-	if utils.IsStringEmpty(instanceFilePath) {
+func (factory *HttpPushFactory) NewInstance(instanceName string) (plugins.Instance, error) {
+	if utils.IsStringEmpty(instanceName) {
 		utils.PrintErr("HttpPushFactory.NewInstance", "没有传递配置参数")
 		return nil, errors.New("没有传递配置参数")
 	}
@@ -38,6 +45,8 @@ func (factory *HttpPushFactory) NewInstance(instanceFilePath string) (plugins.In
 		return nil, errors.New("没有传递DestroyProducer")
 	}
 
+	pluginConfig := config.GetEventServiceConfig().PluginConfig
+	instanceFilePath := filepath.Join(pluginConfig.ProducerConfigDir, instanceName, ".json")
 	configJson, err := ioutil.ReadFile(instanceFilePath)
 	if err != nil {
 		utils.PrintCallErr("HttpPushFactory.NewInstance", "ioutil.ReadFile", err)
@@ -67,6 +76,10 @@ func (factory *HttpPushFactory) DestroyInstance(instance plugins.Instance) error
 	}
 
 	return factory.destroyProducerWithLock(instance)
+}
+
+func (factory *HttpPushFactory) GetInstancesDir() string {
+	return filepath.Join(httpPushInstanceDir, factory.OfferInstancesSubDir())
 }
 
 func (factory *HttpPushFactory) initInstanceWithLock(conf *Config) (plugins.Instance, error) {
