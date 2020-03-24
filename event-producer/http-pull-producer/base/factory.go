@@ -24,7 +24,7 @@ type Config struct {
 type HttpPullFactory struct {
 	sync.Mutex
 
-	InitProducer         func(conf *Config) (plugins.Instance, error)
+	InitProducer         func(instanceName string, conf *Config) (plugins.Instance, error)
 	DestroyProducer      func(instance plugins.Instance) error
 	OfferInstancesSubDir func() string
 }
@@ -64,7 +64,7 @@ func (factory *HttpPullFactory) NewInstance(instanceName string) (plugins.Instan
 		return nil, err
 	}
 
-	pushProducer, err := factory.initInstanceWithLock(conf)
+	pushProducer, err := factory.initInstanceWithLock(instanceName, conf)
 	if err != nil {
 		utils.PrintCallErr("HttpPullFactory.NewInstance", "producer.initProducerWithLock", err)
 		return nil, err
@@ -87,11 +87,11 @@ func (factory *HttpPullFactory) GetInstancesDir() string {
 	return filepath.Join(conf.ProducerConfigDir, httpPullInstanceDir, factory.OfferInstancesSubDir())
 }
 
-func (factory *HttpPullFactory) initInstanceWithLock(conf *Config) (plugins.Instance, error) {
+func (factory *HttpPullFactory) initInstanceWithLock(instanceName string, conf *Config) (plugins.Instance, error) {
 	factory.Lock()
 	defer factory.Unlock()
 
-	return factory.InitProducer(conf)
+	return factory.InitProducer(instanceName, conf)
 }
 
 func (factory *HttpPullFactory) destroyInstanceWithLock(instance plugins.Instance) error {

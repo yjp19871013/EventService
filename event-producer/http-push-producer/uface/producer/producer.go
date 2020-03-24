@@ -1,10 +1,11 @@
 package producer
 
 import (
+	"com.fs/event-service/db"
+	"com.fs/event-service/event"
 	"com.fs/event-service/event-producer/http-push-producer/base"
 	"com.fs/event-service/utils"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -16,6 +17,7 @@ type callbackResponse struct {
 
 type HttpPushProducer struct {
 	base.Producer
+	ProducerName string
 }
 
 func (producer *HttpPushProducer) handlerFun(w http.ResponseWriter, r *http.Request) {
@@ -42,22 +44,13 @@ func (producer *HttpPushProducer) handlerFun(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	fmt.Println(string(body))
+	consumers, err := db.GetConsumersByProducerName(producer.ProducerName)
+	if err != nil {
+		utils.PrintCallErr("uface HandlerFun", "dbProducer.GetAllProducerConsumers", err)
+		return
+	}
 
-	//dbProducer := &db.Producer{Name: producer.ProducerName}
-	//err = dbProducer.GetByName()
-	//if err != nil {
-	//	utils.PrintCallErr("uface HandlerFun", "dbProducer.GetByName", err)
-	//	return
-	//}
-	//
-	//consumers, err := dbProducer.GetAllProducerConsumers()
-	//if err != nil {
-	//	utils.PrintCallErr("uface HandlerFun", "dbProducer.GetAllProducerConsumers", err)
-	//	return
-	//}
-	//
-	//for _, consumer := range consumers {
-	//	event.SendEventHttpAsync(consumer.Url, producer.ProducerName, "uface face recoganition event", string(body))
-	//}
+	for _, consumer := range consumers {
+		event.SendEventHttpAsync(consumer.Url, producer.ProducerName, "uface face recoganition event", string(body))
+	}
 }

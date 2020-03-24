@@ -17,8 +17,8 @@ var (
 	v1PutRouter = map[string]gin.HandlerFunc{}
 
 	v1GetRouter = map[string]gin.HandlerFunc{
-		"/producer/:producerId/consumers": api.GetProducerConsumers,
-		"/consumers":                      api.GetConsumers,
+		"/producer/:producerName/consumers": api.GetProducerConsumers,
+		"/consumers":                        api.GetConsumers,
 	}
 )
 

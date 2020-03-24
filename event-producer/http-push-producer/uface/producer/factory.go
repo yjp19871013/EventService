@@ -15,13 +15,14 @@ type HttpPushFactory struct {
 	base.HttpPushFactory
 }
 
-func InitProducer(conf *base.Config) (plugins.Instance, error) {
+func InitProducer(instanceName string, conf *base.Config) (plugins.Instance, error) {
 	if conf == nil {
 		utils.PrintErr("HttpPushFactory.InitProducer", "没有传递配置参数")
 		return nil, errors.New("没有传递配置参数")
 	}
 
 	prod := &HttpPushProducer{}
+	prod.ProducerName = instanceName
 	prod.Config = conf
 	prod.OnHandle = prod.handlerFun
 

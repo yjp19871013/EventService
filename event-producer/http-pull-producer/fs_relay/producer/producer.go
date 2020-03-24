@@ -1,17 +1,19 @@
 package producer
 
 import (
+	"com.fs/event-service/db"
+	"com.fs/event-service/event"
 	"com.fs/event-service/event-producer/http-pull-producer/base"
 	"com.fs/event-service/http_client"
 	"com.fs/event-service/utils"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
 type HttpPullProducer struct {
 	base.Producer
+	ProducerName string
 }
 
 func (prod *HttpPullProducer) onPull() error {
@@ -33,24 +35,15 @@ func (prod *HttpPullProducer) onPull() error {
 		return err
 	}
 
-	fmt.Println(string(body))
+	consumers, err := db.GetConsumersByProducerName(prod.ProducerName)
+	if err != nil {
+		utils.PrintCallErr("fs_relay onPull", "dbProducer.GetAllProducerConsumers", err)
+		return err
+	}
 
-	//dbProducer := &db.Producer{Name: prod.ProducerName}
-	//err = dbProducer.GetByName()
-	//if err != nil {
-	//	utils.PrintCallErr("fs_relay onPull", "dbProducer.GetByName", err)
-	//	return err
-	//}
-	//
-	//consumers, err := dbProducer.GetAllProducerConsumers()
-	//if err != nil {
-	//	utils.PrintCallErr("fs_relay onPull", "dbProducer.GetAllProducerConsumers", err)
-	//	return err
-	//}
-	//
-	//for _, consumer := range consumers {
-	//	event.SendEventHttpAsync(consumer.Url, prod.ProducerName, "fs_relay status event", string(body))
-	//}
+	for _, consumer := range consumers {
+		event.SendEventHttpAsync(consumer.Url, prod.ProducerName, "fs_relay status event", string(body))
+	}
 
 	return nil
 }
