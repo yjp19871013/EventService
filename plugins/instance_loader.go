@@ -65,9 +65,23 @@ func (loader *instanceLoader) start() error {
 		}
 	}
 
+	instanceFiles, err := loader.getAllInstanceFiles(instancesDir)
+	if err != nil {
+		utils.PrintCallErr("pluginLoader.load", "loader.getAllInstanceFiles", err)
+		return err
+	}
+
+	for _, instanceFile := range instanceFiles {
+		err := loader.newInstance(instanceFile)
+		if err != nil {
+			utils.PrintCallErr("pluginLoader.load", "loader.newInstance", err)
+			return err
+		}
+	}
+
 	c := make(chan notify.EventInfo)
 
-	err := notify.Watch(instancesDir, c, notify.Create, notify.Remove, notify.Rename)
+	err = notify.Watch(instancesDir, c, notify.Create, notify.Remove, notify.Rename)
 	if err != nil {
 		utils.PrintCallErr("instanceLoader.start", "notify.Watch", err)
 		return err
@@ -125,6 +139,21 @@ func (loader *instanceLoader) start() error {
 func (loader *instanceLoader) stop() {
 	loader.stopChan <- true
 	<-loader.stopChan
+
+	instancesDir := loader.plugin.GetInstancesDir()
+	instanceFiles, err := loader.getAllInstanceFiles(instancesDir)
+	if err != nil {
+		utils.PrintCallErr("pluginLoader.load", "loader.getAllInstanceFiles", err)
+		return
+	}
+
+	for _, instanceFile := range instanceFiles {
+		err := loader.destroyInstance(instanceFile)
+		if err != nil {
+			utils.PrintCallErr("pluginLoader.load", "loader.destroyInstance", err)
+			return
+		}
+	}
 }
 
 func (loader *instanceLoader) newInstance(instanceFilePath string) error {
@@ -220,4 +249,8 @@ func (loader *instanceLoader) getAllInstances() []string {
 	}
 
 	return instanceNames
+}
+
+func (loader *instanceLoader) getAllInstanceFiles(instancesDir string) ([]string, error) {
+	return utils.GetDirFiles(instancesDir)
 }

@@ -14,7 +14,7 @@ type GetConsumersResponse struct {
 type ConsumerInfo struct {
 	ProducerName string `json:"producerName" binding:"required"`
 	ConsumerName string `json:"consumerName" binding:"required"`
-	Url          string `json:"url" binding:"required"`
+	Url          string `json:"url" binding:"required,url"`
 }
 
 type ConsumerInfoWithID struct {
