@@ -1,5 +1,0 @@
-{
-  "pullUrl": "http://12.0.2.38/gate/status",
-  "pullPeriodSec": 5,
-  "pullTimeout": 3
-}
