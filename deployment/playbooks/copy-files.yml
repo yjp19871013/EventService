@@ -1,0 +1,12 @@
+- name: deploy plugins
+  hosts: test-event-servers
+  become: True
+  tasks:
+    - name: Copy file
+      copy: src={{ item.src }} dest={{ item.dest }}
+      with_items:
+        - src: /home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/plugins/fs_relay.so
+          dest: /opt/plugins/fs_relay.so
+        - src: /home/yjp/go-projects/EventService/src/com.fs/event-service/deployment/instances/http_pull/fs_relay/fs_relay.json
+          dest: /opt/instances/http_pull/fs_relay/fs_relay.json
+

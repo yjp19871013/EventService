@@ -1,0 +1,11 @@
+[test-event-servers]
+yf-k8s-node1 ansible_host=10.10.10.222 ansible_user=yf-k8s-node1 ansible_sudo_pass=yf123456
+yf-k8s-node2 ansible_host=10.10.10.223 ansible_user=yf-k8s-node2 ansible_sudo_pass=yf123456
+yf-k8s-node3 ansible_host=10.10.10.224 ansible_user=yf-k8s-node3 ansible_sudo_pass=yf123456
+
+[production-event-servers]
+node1 ansible_host=10.10.10.161 ansible_user=k8s ansible_sudo_pass=k8s
+node2 ansible_host=10.10.10.162 ansible_user=k8s ansible_sudo_pass=k8s
+node3 ansible_host=10.10.10.163 ansible_user=k8s ansible_sudo_pass=k8s
+node4 ansible_host=10.10.10.164 ansible_user=k8s ansible_sudo_pass=k8s
+node5 ansible_host=10.10.10.165 ansible_user=k8s ansible_sudo_pass=k8s

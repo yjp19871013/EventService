@@ -1,0 +1,9 @@
+- name: deploy plugins
+  hosts: test-event-servers
+  become: True
+  tasks:
+    - name: Remove file
+      shell: rm -fr {{ item }}
+      with_items:
+        - /opt/instances/http_pull/fs_relay/fs_relay.json
+        - /opt/plugins/fs_relay.so
